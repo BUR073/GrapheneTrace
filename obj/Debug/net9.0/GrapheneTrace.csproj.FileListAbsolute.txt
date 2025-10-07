@@ -1,0 +1,15 @@
+/Users/henryburbridge/Desktop/GrapheneTrace/bin/Debug/net9.0/GrapheneTrace
+/Users/henryburbridge/Desktop/GrapheneTrace/bin/Debug/net9.0/GrapheneTrace.deps.json
+/Users/henryburbridge/Desktop/GrapheneTrace/bin/Debug/net9.0/GrapheneTrace.runtimeconfig.json
+/Users/henryburbridge/Desktop/GrapheneTrace/bin/Debug/net9.0/GrapheneTrace.dll
+/Users/henryburbridge/Desktop/GrapheneTrace/bin/Debug/net9.0/GrapheneTrace.pdb
+/Users/henryburbridge/Desktop/GrapheneTrace/obj/Debug/net9.0/GrapheneTrace.GeneratedMSBuildEditorConfig.editorconfig
+/Users/henryburbridge/Desktop/GrapheneTrace/obj/Debug/net9.0/GrapheneTrace.AssemblyInfoInputs.cache
+/Users/henryburbridge/Desktop/GrapheneTrace/obj/Debug/net9.0/GrapheneTrace.AssemblyInfo.cs
+/Users/henryburbridge/Desktop/GrapheneTrace/obj/Debug/net9.0/GrapheneTrace.csproj.CoreCompileInputs.cache
+/Users/henryburbridge/Desktop/GrapheneTrace/obj/Debug/net9.0/GrapheneTrace.sourcelink.json
+/Users/henryburbridge/Desktop/GrapheneTrace/obj/Debug/net9.0/GrapheneTrace.dll
+/Users/henryburbridge/Desktop/GrapheneTrace/obj/Debug/net9.0/refint/GrapheneTrace.dll
+/Users/henryburbridge/Desktop/GrapheneTrace/obj/Debug/net9.0/GrapheneTrace.pdb
+/Users/henryburbridge/Desktop/GrapheneTrace/obj/Debug/net9.0/GrapheneTrace.genruntimeconfig.cache
+/Users/henryburbridge/Desktop/GrapheneTrace/obj/Debug/net9.0/ref/GrapheneTrace.dll
