@@ -1,4 +1,4 @@
-namespace graphene_trace.Models;
+namespace GrapheneTrace.Models;
 
 public class ErrorViewModel
 {

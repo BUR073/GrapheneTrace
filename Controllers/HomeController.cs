@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using graphene_trace.Models;
+using GrapheneTrace.Models;
 
-namespace graphene_trace.Controllers;
+namespace GrapheneTrace.Controllers;
 
 public class HomeController : Controller
 {
