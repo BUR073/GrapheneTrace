@@ -43,12 +43,14 @@ namespace GrapheneTrace.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> AdminHome()
+        public async Task<IActionResult> AdminHome(string searchString)
         {
-            var users = await _userManager.Users.ToListAsync();
+            ViewData["CurrentFilter"] = searchString;
+            
+            var allUsers = await _userManager.Users.ToListAsync();
             var userViewModelList = new List<UserViewModel>();
             
-            foreach (var user in users)
+            foreach (var user in allUsers)
             {
                 userViewModelList.Add(new UserViewModel
                 {
@@ -58,11 +60,22 @@ namespace GrapheneTrace.Controllers
                 });
             }
             
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                var upperSearchString = searchString.ToUpper();
+        
+                userViewModelList = userViewModelList.Where(u => 
+                    u.Email.ToUpper().Contains(upperSearchString) ||
+                    u.Id.ToString() == searchString ||
+                    u.Roles.Any(role => role.ToUpper().Contains(upperSearchString))
+                ).ToList();
+            }
+
             var viewModel = new AdminHomeViewModel
             {
                 Users = userViewModelList
             };
-
+    
             return View(viewModel);
         }
 
