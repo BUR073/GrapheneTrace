@@ -16,37 +16,6 @@ namespace GrapheneTrace.Controllers
             _signInManager = signInManager;
         }
 
-        // GET: /Account/Register
-        [HttpGet]
-        public IActionResult Register()
-        {
-            return View();
-        }
-
-        // POST: /Account/Register
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var user = new IdentityUser { UserName = model.Email, Email = model.Email, EmailConfirmed = true };
-                var result = await _userManager.CreateAsync(user, model.Password);
-
-                if (result.Succeeded)
-                {
-                    await _userManager.AddToRoleAsync(user, "User");
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Home");
-                }
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-            }
-            return View(model);
-        }
-
         // GET: /Account/Login
         [HttpGet]
         public IActionResult Login()
