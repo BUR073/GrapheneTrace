@@ -97,6 +97,8 @@ public class AdminController : Controller
         return View(model);
     }
 
+
+
     // POST: /Admin/EditUser
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -104,23 +106,48 @@ public class AdminController : Controller
     {
         if (ModelState.IsValid)
         {
-            var user = await _userManager.FindByIdAsync(model.Id.ToString()); 
+            var user = await _userManager.FindByIdAsync(model.Id.ToString());
             if (user == null)
             {
                 return NotFound();
             }
-
+            
+            var currentAdminIdString = _userManager.GetUserId(User);
+            if (int.TryParse(currentAdminIdString, out int currentAdminId))
+            {
+                if (user.Id == currentAdminId && !model.SelectedRoles.Contains("Admin"))
+                {
+                    ModelState.AddModelError(string.Empty, "Error: You cannot remove your own administrator role.");
+                    model.Roles = await _roleManager.Roles.Select(r => r.Name).Where(n => n != null).ToListAsync() as List<string>;
+                    return View(model);
+                }
+            }
+            
             user.Email = model.Email;
             user.UserName = model.Email;
-
             var userRoles = await _userManager.GetRolesAsync(user);
-
             await _userManager.AddToRolesAsync(user, model.SelectedRoles.Except(userRoles));
             await _userManager.RemoveFromRolesAsync(user, userRoles.Except(model.SelectedRoles));
-            await _userManager.UpdateAsync(user);
+            
+            if (!string.IsNullOrEmpty(model.NewPassword))
+            {
+                await _userManager.RemovePasswordAsync(user);
+                var result = await _userManager.AddPasswordAsync(user, model.NewPassword);
 
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    return View(model);
+                }
+            }
+            await _userManager.UpdateAsync(user);
+        
             return RedirectToAction("AdminHome", "Home");
         }
+
         return View(model);
     }
     

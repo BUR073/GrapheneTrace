@@ -18,11 +18,21 @@
                 <label asp-for="Email"></label>
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
+            
+            <div class="form-floating mb-3">
+                <input asp-for="NewPassword" class="form-control" autocomplete="new-password" />
+                <label asp-for="NewPassword"></label>
+                <span asp-validation-for="NewPassword" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
+                <label asp-for="ConfirmPassword"></label>
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
 
             <div class="form-group mb-3">
                 <label asp-for="SelectedRoles" class="control-label"></label>
                 <select asp-for="SelectedRoles" class="form-control" asp-items="@(new SelectList(Model.Roles))" multiple="multiple" style="height: 150px;"></select>
-                <span class="form-text text-muted">Hold down Ctrl (or Cmd on Mac) to select multiple roles.</span>
             </div>
 
             <button type="submit" class="btn btn-primary">Save Changes</button>
