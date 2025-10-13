@@ -23,6 +23,7 @@
     <thead>
     <tr>
         <th>User ID</th>
+        <th>Role</th>
         <th>User Email</th>
         <th>Actions</th>
     </tr>
@@ -32,6 +33,7 @@
     {
         <tr>
             <td>@user.Id</td>
+            <td>@string.Join(", ", user.Roles)</td>
             <td>@user.Email</td>
             <td>
                 <a class="btn btn-secondary btn-sm" asp-controller="Admin" asp-action="EditUser" asp-route-id="@user.Id">Edit</a>

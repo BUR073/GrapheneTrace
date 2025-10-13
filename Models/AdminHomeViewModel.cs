@@ -5,6 +5,6 @@ namespace GrapheneTrace.Models
 {
     public class AdminHomeViewModel
     {
-        public List<IdentityUser<int>> Users { get; set; } = new List<IdentityUser<int>>();
+        public List<UserViewModel> Users { get; set; } = new List<UserViewModel>();
     }
 }

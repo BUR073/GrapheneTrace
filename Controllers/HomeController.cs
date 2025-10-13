@@ -45,10 +45,24 @@ namespace GrapheneTrace.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AdminHome()
         {
+            var users = await _userManager.Users.ToListAsync();
+            var userViewModelList = new List<UserViewModel>();
+            
+            foreach (var user in users)
+            {
+                userViewModelList.Add(new UserViewModel
+                {
+                    Id = user.Id,
+                    Email = user.Email ?? "",
+                    Roles = new List<string>(await _userManager.GetRolesAsync(user))
+                });
+            }
+            
             var viewModel = new AdminHomeViewModel
             {
-                Users = await _userManager.Users.ToListAsync()
+                Users = userViewModelList
             };
+
             return View(viewModel);
         }
 
