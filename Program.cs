@@ -10,7 +10,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => {
+builder.Services.AddIdentity<IdentityUser<int>, IdentityRole<int>>(options => {
     options.SignIn.RequireConfirmedAccount = false; 
     options.Password.RequireDigit = false;
     options.Password.RequiredLength = 4;
@@ -31,8 +31,8 @@ using (var scope = app.Services.CreateScope())
     var logger = services.GetRequiredService<ILogger<Program>>(); 
     try
     {
-        var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
-        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = services.GetRequiredService<UserManager<IdentityUser<int>>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
         
         await ContextSeed.SeedRolesAsync(roleManager);
         await ContextSeed.SeedAdminAsync(userManager, logger); 

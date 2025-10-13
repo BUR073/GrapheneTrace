@@ -12,9 +12,9 @@ namespace GrapheneTrace.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<IdentityUser<int>> _userManager;
 
-        public HomeController(ILogger<HomeController> logger, UserManager<IdentityUser> userManager)
+        public HomeController(ILogger<HomeController> logger, UserManager<IdentityUser<int>> userManager)
         {
             _logger = logger;
             _userManager = userManager;
@@ -27,8 +27,7 @@ namespace GrapheneTrace.Controllers
             {
                 return Challenge();
             }
-
-            // Using hardcoded strings instead of the constants class
+            
             if (await _userManager.IsInRoleAsync(user, "Admin"))
             {
                 return RedirectToAction("AdminHome");
