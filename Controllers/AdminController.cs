@@ -1,32 +1,31 @@
+// In Controllers/AdminController.cs
 using GrapheneTrace.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
-[Authorize(Roles = "Admin")] // This entire controller is only for Admins
+[Authorize(Roles = "Admin")]
 public class AdminController : Controller
 {
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
-
-    public AdminController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+    private readonly UserManager<IdentityUser<int>> _userManager;
+    private readonly RoleManager<IdentityRole<int>> _roleManager;
+    
+    public AdminController(UserManager<IdentityUser<int>> userManager, RoleManager<IdentityRole<int>> roleManager)
     {
         _userManager = userManager;
         _roleManager = roleManager;
     }
-
-    // GET: /Admin/CreateUser
+    
     [HttpGet]
     public async Task<IActionResult> CreateUser()
     {
         var viewModel = new CreateUserViewModel
         {
-            // Get all roles and create a SelectListItem for each
             Roles = await _roleManager.Roles.Select(r => new SelectListItem
             {
                 Text = r.Name,
@@ -35,7 +34,7 @@ public class AdminController : Controller
         };
         return View(viewModel);
     }
-
+    
     // POST: /Admin/CreateUser
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -43,34 +42,42 @@ public class AdminController : Controller
     {
         if (ModelState.IsValid)
         {
-            var user = new IdentityUser { UserName = model.Email, Email = model.Email, EmailConfirmed = true };
+            var user = new IdentityUser<int>
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                EmailConfirmed = true 
+            };
+            
             var result = await _userManager.CreateAsync(user, model.Password);
 
             if (result.Succeeded)
             {
-
                 await _userManager.AddToRoleAsync(user, model.SelectedRole);
 
                 return RedirectToAction("AdminHome", "Home");
             }
+
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(string.Empty, error.Description);
             }
         }
-        
+
         model.Roles = await _roleManager.Roles.Select(r => new SelectListItem
         {
             Text = r.Name,
             Value = r.Name
         }).ToListAsync();
+    
         return View(model);
     }
-    
+
+    // GET: /Admin/EditUser/{id}
     [HttpGet]
-    public async Task<IActionResult> EditUser(string id)
+    public async Task<IActionResult> EditUser(int id) 
     {
-        var user = await _userManager.FindByIdAsync(id);
+        var user = await _userManager.FindByIdAsync(id.ToString());
         if (user == null)
         {
             return NotFound();
@@ -82,21 +89,22 @@ public class AdminController : Controller
         var model = new EditUserViewModel
         {
             Id = user.Id,
-            Email = user.Email,
-            Roles = allRoles,
+            Email = user.Email ?? "",
+            Roles = allRoles.Where(r => r != null).ToList() as List<string>,
             SelectedRoles = userRoles.ToList()
         };
 
         return View(model);
     }
-    
+
+    // POST: /Admin/EditUser
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditUser(EditUserViewModel model)
     {
         if (ModelState.IsValid)
         {
-            var user = await _userManager.FindByIdAsync(model.Id);
+            var user = await _userManager.FindByIdAsync(model.Id.ToString()); 
             if (user == null)
             {
                 return NotFound();
@@ -107,32 +115,20 @@ public class AdminController : Controller
 
             var userRoles = await _userManager.GetRolesAsync(user);
 
-            // Add the new roles
-            var result = await _userManager.AddToRolesAsync(user, model.SelectedRoles.Except(userRoles));
-            if (!result.Succeeded)
-            {
-                // Handle errors
-            }
-
-            // Remove the old roles
-            result = await _userManager.RemoveFromRolesAsync(user, userRoles.Except(model.SelectedRoles));
-            if (!result.Succeeded)
-            {
-                // Handle errors
-            }
-
+            await _userManager.AddToRolesAsync(user, model.SelectedRoles.Except(userRoles));
+            await _userManager.RemoveFromRolesAsync(user, userRoles.Except(model.SelectedRoles));
             await _userManager.UpdateAsync(user);
 
             return RedirectToAction("AdminHome", "Home");
         }
-
         return View(model);
     }
     
+    // GET: /Admin/DeleteUser/{id}
     [HttpGet]
-    public async Task<IActionResult> DeleteUser(string id)
+    public async Task<IActionResult> DeleteUser(int id) 
     {
-        var user = await _userManager.FindByIdAsync(id);
+        var user = await _userManager.FindByIdAsync(id.ToString());
         if (user == null)
         {
             return NotFound();
@@ -140,29 +136,25 @@ public class AdminController : Controller
         return View(user);
     }
 
-
+    // POST: /Admin/DeleteUser
     [HttpPost, ActionName("DeleteUser")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteUserConfirmed(string id)
+    public async Task<IActionResult> DeleteUserConfirmed(int id)
     {
-        var user = await _userManager.FindByIdAsync(id);
+        var user = await _userManager.FindByIdAsync(id.ToString());
         if (user != null)
         {
-            // Safety check: prevent admin from deleting their own account
-            var currentUserId = _userManager.GetUserId(User);
-            if (user.Id == currentUserId)
+            var currentAdminIdString = _userManager.GetUserId(User);
+            if (int.TryParse(currentAdminIdString, out int currentAdminId))
             {
-                // Optionally, add a model error to inform the admin
-                TempData["ErrorMessage"] = "Error: You cannot delete your own administrator account.";
-                return RedirectToAction("AdminHome", "Home");
+                if (user.Id == currentAdminId)
+                {
+                    TempData["ErrorMessage"] = "Error: You cannot delete your own administrator account.";
+                    return RedirectToAction("AdminHome", "Home");
+                }
             }
 
-            var result = await _userManager.DeleteAsync(user);
-            if (result.Succeeded)
-            {
-                return RedirectToAction("AdminHome", "Home");
-            }
-            // Handle errors if deletion fails
+            await _userManager.DeleteAsync(user);
         }
 
         return RedirectToAction("AdminHome", "Home");

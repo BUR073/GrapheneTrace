@@ -5,26 +5,26 @@ using Microsoft.AspNetCore.Identity;
 
 public static class ContextSeed
 {
-    public static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
+    public static async Task SeedRolesAsync(RoleManager<IdentityRole<int>> roleManager)
     {
         string[] roleNames = { "Admin", "Clinician", "User" };
         foreach (var roleName in roleNames)
         {
             if (!await roleManager.RoleExistsAsync(roleName))
             {
-                await roleManager.CreateAsync(new IdentityRole(roleName));
+                await roleManager.CreateAsync(new IdentityRole<int>(roleName));
             }
         }
     }
 
-    public static async Task SeedAdminAsync(UserManager<IdentityUser> userManager, ILogger logger)
+    public static async Task SeedAdminAsync(UserManager<IdentityUser<int>> userManager, ILogger logger)
     {
         // Check if the admin user exists
         if (await userManager.FindByEmailAsync("admin@admin.com") == null)
         {
             logger.LogInformation("Attempting to create admin user.");
 
-            IdentityUser admin = new IdentityUser
+            IdentityUser<int> admin = new IdentityUser<int>
             {
                 UserName = "admin@admin.com",
                 Email = "admin@admin.com",

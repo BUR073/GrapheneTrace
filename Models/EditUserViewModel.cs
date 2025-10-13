@@ -6,16 +6,14 @@ namespace GrapheneTrace.Models
 {
     public class EditUserViewModel
     {
-        public string Id { get; set; } = string.Empty;
+        public int Id { get; set; }
 
         [Required]
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
-
-        // To display all available roles
+        
         public List<string> Roles { get; set; } = new();
-
-        // To hold the roles selected by the admin
+        
         [Display(Name = "Roles")]
         public List<string> SelectedRoles { get; set; } = new();
     }

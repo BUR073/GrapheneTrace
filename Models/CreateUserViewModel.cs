@@ -16,8 +16,6 @@ namespace GrapheneTrace.Models
 
         [Display(Name = "Role")]
         public string SelectedRole { get; set; } = string.Empty;
-
-        // This will be used to populate the dropdown
         public IEnumerable<SelectListItem> Roles { get; set; } = new List<SelectListItem>();
     }
 }
