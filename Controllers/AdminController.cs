@@ -1,5 +1,5 @@
 // In Controllers/AdminController.cs
-using GrapheneTrace.Models;
+using GrapheneTrace.Models.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
+
 
 [Authorize(Roles = "Admin")]
 public class AdminController : Controller

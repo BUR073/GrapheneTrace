@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace GrapheneTrace.Models
+namespace GrapheneTrace.Models.Admin
 {
     public class CreateUserViewModel
     {

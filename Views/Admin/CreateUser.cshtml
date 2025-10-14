@@ -1,4 +1,4 @@
-@model GrapheneTrace.Models.CreateUserViewModel
+@model GrapheneTrace.Models.Admin.CreateUserViewModel
 @{
     ViewData["Title"] = "Create User";
 }
@@ -23,7 +23,7 @@
             </div>
             <div class="form-floating mb-3">
                 <select asp-for="SelectedRole" asp-items="@Model.Roles" class="form-control">
-                    <option value="">-- Select a Role --</option>
+                    <option value="">Select a Role</option>
                 </select>
                 <label asp-for="SelectedRole"></label>
                 <span asp-validation-for="SelectedRole" class="text-danger"></span>

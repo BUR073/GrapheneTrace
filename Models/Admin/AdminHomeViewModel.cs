@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 
-namespace GrapheneTrace.Models
+namespace GrapheneTrace.Models.Admin
 {
     public class AdminHomeViewModel
     {
