@@ -17,7 +17,6 @@ public static class ContextSeed
 
     public static async Task SeedAdminAsync(UserManager<IdentityUser<int>> userManager, ILogger logger)
     {
-        // Check if the admin user exists
         if (await userManager.FindByEmailAsync("admin@admin.com") == null)
         {
             logger.LogInformation("Attempting to create admin user.");
