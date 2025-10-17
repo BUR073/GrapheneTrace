@@ -1,6 +1,4 @@
-// In Data/Seeders/ContextSeed.cs
-
-namespace GrapheneTrace.Data;
+namespace GrapheneTrace.Data.Seeders;
 using Microsoft.AspNetCore.Identity;
 
 public static class ContextSeed
