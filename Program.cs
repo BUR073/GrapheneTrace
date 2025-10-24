@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using GrapheneTrace.Data.Seeders;
+using GrapheneTrace.Data;              
+using GrapheneTrace.Areas.Identity.Data;  
+
 
 var builder = WebApplication.CreateBuilder(args);
 

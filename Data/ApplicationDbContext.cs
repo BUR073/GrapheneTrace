@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using GrapheneTrace.Areas.Identity.Data;
 
 namespace GrapheneTrace.Data;
 
