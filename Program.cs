@@ -10,7 +10,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddIdentity<IdentityUser<int>, IdentityRole<int>>(options => {
+builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>(options => {
     options.SignIn.RequireConfirmedAccount = false; 
     options.Password.RequireDigit = false;
     options.Password.RequiredLength = 4;
