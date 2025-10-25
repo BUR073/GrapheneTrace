@@ -6,22 +6,18 @@ using GrapheneTrace.Areas.Identity.Data;
 namespace GrapheneTrace.Models.Database
 {
 
-    public class Feedback
+    public class Heatmap
     {
         [Key]
-        public int FeedbackId { get; set; }
-        
-        public int UserId { get; set; } 
-        [ForeignKey(nameof(UserId))] 
-        public ApplicationUser User { get; set; } = null!;
-        
+        public int HeatmapId { get; set; }
+
         public int DataId { get; set; }
         [ForeignKey(nameof(DataId))]
         public Data DataId { get; set; } = null!;
-        
-        public string Comment { get; set; }
-        
-        public DateTime TimeStamp { get; set; }
-        
+
+        public float PeakPressureIndex { get; set; }
+        public float ContactAreaPercent { get; set; }
+
+        public ICollection<HeatmapChunk> Chunks { get; set; } = new List<HeatmapChunk>();
     }
 }

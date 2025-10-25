@@ -6,22 +6,21 @@ using GrapheneTrace.Areas.Identity.Data;
 namespace GrapheneTrace.Models.Database
 {
 
-    public class Feedback
-    {
+    public class FeedbackReply
+    {   
         [Key]
-        public int FeedbackId { get; set; }
+        public int FeedbackReplyID { get; set; }
+        
+        public int FeedbackID { get; set; }
+        [ForeignKey(nameof(FeedbackID))] 
+        public Feedback FeedbackID { get; set; }
         
         public int UserId { get; set; } 
         [ForeignKey(nameof(UserId))] 
         public ApplicationUser User { get; set; } = null!;
         
-        public int DataId { get; set; }
-        [ForeignKey(nameof(DataId))]
-        public Data DataId { get; set; } = null!;
-        
-        public string Comment { get; set; }
-        
         public DateTime TimeStamp { get; set; }
         
     }
 }
+
