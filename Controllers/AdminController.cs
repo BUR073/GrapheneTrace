@@ -48,6 +48,8 @@ public class AdminController : Controller
             {
                 UserName = model.Email,
                 Email = model.Email,
+                Name = model.Name, 
+                DateOfBirth = model.DateOfBirth,
                 EmailConfirmed = true 
             };
             
@@ -92,6 +94,8 @@ public class AdminController : Controller
         {
             Id = user.Id,
             Email = user.Email ?? "",
+            DateOfBirth = user.DateOfBirth,
+            Name = user.Name,
             Roles = allRoles.Where(r => r != null).ToList() as List<string>,
             SelectedRoles = userRoles.ToList()
         };
@@ -114,6 +118,7 @@ public class AdminController : Controller
                 return NotFound();
             }
             
+            // Stop Admin from setting themself to a non-admin role
             var currentAdminIdString = _userManager.GetUserId(User);
             if (int.TryParse(currentAdminIdString, out int currentAdminId))
             {
@@ -125,12 +130,17 @@ public class AdminController : Controller
                 }
             }
             
+            // Update all but password
             user.Email = model.Email;
             user.UserName = model.Email;
+            user.DateOfBirth = model.DateOfBirth;
+            user.Name = model.Name;
+            
             var userRoles = await _userManager.GetRolesAsync(user);
             await _userManager.AddToRolesAsync(user, model.SelectedRoles.Except(userRoles));
             await _userManager.RemoveFromRolesAsync(user, userRoles.Except(model.SelectedRoles));
             
+            // If there is a password check that it has been confirmed properly, then update
             if (!string.IsNullOrEmpty(model.NewPassword))
             {
                 await _userManager.RemovePasswordAsync(user);

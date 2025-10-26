@@ -56,13 +56,13 @@ namespace GrapheneTrace.Controllers
             
             foreach (var user in allUsers)
             {
-                // This code is fine, as Id, Email, and Roles are 
-                // available on the ApplicationUser
                 userViewModelList.Add(new UserViewModel
                 {
                     Id = user.Id,
                     Email = user.Email ?? "",
-                    Roles = new List<string>(await _userManager.GetRolesAsync(user))
+                    Roles = new List<string>(await _userManager.GetRolesAsync(user)),
+                    DateOfBirth = user.DateOfBirth,
+                    Name = user.Name ?? string.Empty,
                 });
             }
             

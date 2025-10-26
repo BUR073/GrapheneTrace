@@ -20,6 +20,18 @@
             </div>
             
             <div class="form-floating mb-3">
+                <input asp-for="Name" class="form-control" />
+                <label asp-for="Name"></label>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            
+            <div class="form-floating mb-3">
+                <input asp-for="DateOfBirth" class="form-control" type="date" />
+                <label asp-for="DateOfBirth"></label>
+                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+            </div>
+            
+            <div class="form-floating mb-3">
                 <input asp-for="NewPassword" class="form-control" autocomplete="new-password" />
                 <label asp-for="NewPassword"></label>
                 <span asp-validation-for="NewPassword" class="text-danger"></span>

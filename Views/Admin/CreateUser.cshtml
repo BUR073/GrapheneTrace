@@ -10,17 +10,32 @@
 <div class="row">
     <div class="col-md-4">
         <form asp-controller="Admin" asp-action="CreateUser" method="post">
+            
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
             <div class="form-floating mb-3">
-                <input asp-for="Email" class="form-control" />
+                <input asp-for="Email" class="form-control"/>
                 <label asp-for="Email"></label>
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
+            
             <div class="form-floating mb-3">
-                <input asp-for="Password" class="form-control" />
+                <input asp-for="Name" class="form-control"/>
+                <label asp-for="Name"></label>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            
+            <div class="form-floating mb-3">
+                <input asp-for="DateOfBirth" class="form-control" type="date" />
+                <label asp-for="DateOfBirth"></label>
+                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+            </div>
+            
+            <div class="form-floating mb-3">
+                <input asp-for="Password" class="form-control"/>
                 <label asp-for="Password"></label>
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
+            
             <div class="form-floating mb-3">
                 <select asp-for="SelectedRole" asp-items="@Model.Roles" class="form-control">
                     <option value="">Select a Role</option>
@@ -28,6 +43,7 @@
                 <label asp-for="SelectedRole"></label>
                 <span asp-validation-for="SelectedRole" class="text-danger"></span>
             </div>
+            
             <button type="submit" class="w-100 btn btn-lg btn-primary">Create User</button>
         </form>
     </div>

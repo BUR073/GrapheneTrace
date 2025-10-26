@@ -5,9 +5,8 @@ namespace GrapheneTrace.Areas.Identity.Data
 {
     public class ApplicationUser : IdentityUser<int>
     {
-        public string? Name { get; set; }
-        public DateTime? DateOfBirth { get; set; }
-
+        public string Name { get; set; }
+        public DateTime DateOfBirth { get; set; }
         public ICollection<Feedback> Feedback { get; set; } = new List<Feedback>();
         public ICollection<FeedbackReply> FeedbackReplies { get; set; } = new List<FeedbackReply>();
         public ICollection<PatientClinician> ClinicianLinks { get; set; } = new List<PatientClinician>(); // Where user is patient

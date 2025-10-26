@@ -13,6 +13,12 @@ namespace GrapheneTrace.Models.Admin
         [Required]
         [DataType(DataType.Password)]
         public string Password { get; set; } = string.Empty;
+            
+        [Required]
+        public String Name { get; set; } = string.Empty;
+            
+        [Required]
+        public DateTime DateOfBirth { get; set; }
 
         [Display(Name = "Role")]
         public string SelectedRole { get; set; } = string.Empty;

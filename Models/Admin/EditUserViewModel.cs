@@ -25,5 +25,11 @@ namespace GrapheneTrace.Models.Admin
         [Display(Name = "Confirm New Password")]
         [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
         public string? ConfirmPassword { get; set; } 
+        
+        [Required] 
+        public String Name { get; set; } = string.Empty;
+        
+        [Required]
+        public DateTime DateOfBirth { get; set; }
     }
 }

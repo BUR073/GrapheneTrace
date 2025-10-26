@@ -32,7 +32,9 @@
     <tr>
         <th>User ID</th>
         <th>Role</th>
+        <th>Name</th>
         <th>User Email</th>
+        <th>Date of Birth</th>
         <th>Actions</th>
     </tr>
     </thead>
@@ -42,7 +44,9 @@
         <tr>
             <td>@user.Id</td>
             <td>@string.Join(", ", user.Roles)</td>
+            <td>@user.Name</td>
             <td>@user.Email</td>
+            <td>@user.DateOfBirth.ToShortDateString()</td>
             <td>
                 <a class="btn btn-secondary btn-sm" asp-controller="Admin" asp-action="EditUser" asp-route-id="@user.Id">Edit</a>
 
