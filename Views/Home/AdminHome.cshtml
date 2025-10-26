@@ -1,6 +1,7 @@
 @model GrapheneTrace.Models.Admin.AdminHomeViewModel
 @using Microsoft.AspNetCore.Identity
-@inject UserManager<IdentityUser<int>> UserManager
+@using GrapheneTrace.Areas.Identity.Data
+@inject UserManager<ApplicationUser> UserManager
 @{
     ViewData["Title"] = "Admin Dashboard";
     var currentUserIdString = UserManager.GetUserId(User);

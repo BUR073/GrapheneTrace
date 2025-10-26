@@ -8,15 +8,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using GrapheneTrace.Areas.Identity.Data;
 
 
 [Authorize(Roles = "Admin")]
 public class AdminController : Controller
 {
-    private readonly UserManager<IdentityUser<int>> _userManager;
+    private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole<int>> _roleManager;
     
-    public AdminController(UserManager<IdentityUser<int>> userManager, RoleManager<IdentityRole<int>> roleManager)
+    public AdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<int>> roleManager)
     {
         _userManager = userManager;
         _roleManager = roleManager;
@@ -43,7 +44,7 @@ public class AdminController : Controller
     {
         if (ModelState.IsValid)
         {
-            var user = new IdentityUser<int>
+            var user = new ApplicationUser
             {
                 UserName = model.Email,
                 Email = model.Email,

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using GrapheneTrace.Areas.Identity.Data; 
 
 namespace GrapheneTrace.Controllers
 {
@@ -13,9 +14,9 @@ namespace GrapheneTrace.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly UserManager<IdentityUser<int>> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public HomeController(ILogger<HomeController> logger, UserManager<IdentityUser<int>> userManager)
+        public HomeController(ILogger<HomeController> logger, UserManager<ApplicationUser> userManager)
         {
             _logger = logger;
             _userManager = userManager;
@@ -29,6 +30,7 @@ namespace GrapheneTrace.Controllers
                 return Challenge();
             }
             
+            // This code works as-is
             if (await _userManager.IsInRoleAsync(user, "Admin"))
             {
                 return RedirectToAction("AdminHome");
@@ -48,11 +50,14 @@ namespace GrapheneTrace.Controllers
         {
             ViewData["CurrentFilter"] = searchString;
             
+            // This now correctly queries the ApplicationUsers table
             var allUsers = await _userManager.Users.ToListAsync();
             var userViewModelList = new List<UserViewModel>();
             
             foreach (var user in allUsers)
             {
+                // This code is fine, as Id, Email, and Roles are 
+                // available on the ApplicationUser
                 userViewModelList.Add(new UserViewModel
                 {
                     Id = user.Id,

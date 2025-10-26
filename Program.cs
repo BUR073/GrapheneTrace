@@ -4,7 +4,6 @@ using GrapheneTrace.Data.Seeders;
 using GrapheneTrace.Data;              
 using GrapheneTrace.Areas.Identity.Data;  
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -32,14 +31,16 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var logger = services.GetRequiredService<ILogger<Program>>(); 
-    try
-    {
-        var userManager = services.GetRequiredService<UserManager<IdentityUser<int>>>();
-        var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
-        
-        await ContextSeed.SeedRolesAsync(roleManager);
-        await ContextSeed.SeedAdminAsync(userManager, logger); 
-    }
+
+	try
+	{
+    
+    	var userManager = services.GetRequiredService<UserManager<ApplicationUser>>(); 
+    	var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
+
+    	await ContextSeed.SeedRolesAsync(roleManager);
+    	await ContextSeed.SeedAdminAsync(userManager, logger); 
+	}
     catch (Exception ex)
     {
         logger.LogError(ex, "An error occurred during database seeding.");
