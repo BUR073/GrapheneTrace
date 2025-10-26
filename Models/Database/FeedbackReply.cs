@@ -10,7 +10,7 @@ namespace GrapheneTrace.Models.Database
     public class FeedbackReply
     {   
         [Key]
-        public int FeedbackReplyID { get; set; }
+        public int feedbackReplyId { get; set; }
         
         public int FeedbackId { get; set; }
         [ForeignKey(nameof(FeedbackId))] 

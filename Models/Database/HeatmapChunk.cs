@@ -15,6 +15,6 @@ namespace GrapheneTrace.Models.Database
         [ForeignKey(nameof(HeatmapId))]
         public Heatmap Heatmap { get; set; } = null!;
         public int ChunkNumber { get; set; }   
-        public string Data { get; set; } = string.Empty; 
+        public string ChunkData { get; set; } = string.Empty; 
     }
 }

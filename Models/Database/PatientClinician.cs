@@ -8,15 +8,13 @@ namespace GrapheneTrace.Models.Database
     [Table("PatientClinician", Schema = "GrapheneTrace")]
     public class PatientClinician
     {
-        [Key, Column(Order = 0)]
         public int PatientId { get; set; }
-
+        
         [ForeignKey(nameof(PatientId))]
         public ApplicationUser Patient { get; set; } = null!;
-
-        [Key, Column(Order = 1)]
+        
         public int ClinicianId { get; set; }
-
+        
         [ForeignKey(nameof(ClinicianId))]
         public ApplicationUser Clinician { get; set; } = null!;
     }

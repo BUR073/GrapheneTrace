@@ -7,11 +7,11 @@ namespace GrapheneTrace.Models.Database
     [Table("Diagnostics", Schema = "GrapheneTrace")]
     public class Diagnostics
     {
-        [Key] public int DiagnosticsID { get; set; }
+        [Key] public int DiagnosticsId { get; set; }
 
         public int DataId { get; set; }
         [ForeignKey(nameof(DataId))] 
-        public required Data Data{ get; set; }
+        public required SensorData SensorData{ get; set; }
 
         public string PatientCondition { get; set; } = string.Empty;
 

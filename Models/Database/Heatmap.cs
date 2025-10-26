@@ -14,7 +14,7 @@ namespace GrapheneTrace.Models.Database
 
         public int DataId { get; set; }
         [ForeignKey(nameof(DataId))]
-        public Data Data { get; set; } = null!;
+        public SensorData SensorData { get; set; } = null!;
 
         public float PeakPressureIndex { get; set; }
         public float ContactAreaPercent { get; set; }

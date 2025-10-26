@@ -9,11 +9,11 @@ namespace GrapheneTrace.Models.Database
     public class Alert
     {
         [Key]
-        public int AlertID { get; set; }
+        public int AlertId { get; set; }
         
         public int DataId { get; set; }
         [ForeignKey(nameof(DataId))]
-        public required Data Data { get; set; } = null!;
+        public required SensorData SensorData { get; set; } = null!;
         
         public required string AlertText { get; set; } 
         
@@ -22,4 +22,5 @@ namespace GrapheneTrace.Models.Database
         public DateTime UpdatedAt { get; set; }
     }
 }
+
 
