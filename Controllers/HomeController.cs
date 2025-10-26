@@ -50,7 +50,6 @@ namespace GrapheneTrace.Controllers
         {
             ViewData["CurrentFilter"] = searchString;
             
-            // This now correctly queries the ApplicationUsers table
             var allUsers = await _userManager.Users.ToListAsync();
             var userViewModelList = new List<UserViewModel>();
             

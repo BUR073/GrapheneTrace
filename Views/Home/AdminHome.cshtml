@@ -35,7 +35,7 @@
         <th>Name</th>
         <th>User Email</th>
         <th>Date of Birth</th>
-        <th>Actions</th>
+        <th style="width: 300px;">Actions</th>
     </tr>
     </thead>
     <tbody>
@@ -47,13 +47,31 @@
             <td>@user.Name</td>
             <td>@user.Email</td>
             <td>@user.DateOfBirth.ToShortDateString()</td>
-            <td>
-                <a class="btn btn-secondary btn-sm" asp-controller="Admin" asp-action="EditUser" asp-route-id="@user.Id">Edit</a>
+            
+            <td class="action-button-group">
 
-                @if (user.Id != currentUserId)
-                {
-                    <a class="btn btn-danger btn-sm" asp-controller="Admin" asp-action="DeleteUser" asp-route-id="@user.Id">Delete</a>
-                }
+                <div class="action-slot">
+                    @if (user.Roles.Contains("User"))
+                    {
+                        <a class="btn btn-primary btn-sm w-100" asp-controller="Admin" asp-action="ManageUser" asp-route-id="@user.Id">Manage User</a>
+                    }
+                    @if (user.Roles.Contains("Clinician"))
+                    {
+                        <a class="btn btn-primary btn-sm w-100" asp-controller="Admin" asp-action="ManageClinician" asp-route-id="@user.Id">Manage Clinician</a>
+                    }
+                </div>
+
+                <div class="action-slot-sm">
+                    <a class="btn btn-secondary btn-sm w-100" asp-controller="Admin" asp-action="EditUser" asp-route-id="@user.Id">Edit</a>
+                </div>
+
+                <div class="action-slot-sm">
+                    @if (user.Id != currentUserId)
+                    {
+                        <a class="btn btn-danger btn-sm w-100" asp-controller="Admin" asp-action="DeleteUser" asp-route-id="@user.Id">Delete</a>
+                    }
+                </div>
+
             </td>
         </tr>
     }
