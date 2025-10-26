@@ -51,9 +51,9 @@
             <td class="action-button-group">
 
                 <div class="action-slot">
-                    @if (user.Roles.Contains("User"))
+                    @if (user.Roles.Contains("Patient"))
                     {
-                        <a class="btn btn-primary btn-sm w-100" asp-controller="Admin" asp-action="ManageUser" asp-route-id="@user.Id">Manage User</a>
+                        <a class="btn btn-primary btn-sm w-100" asp-controller="Admin" asp-action="ManageUser" asp-route-id="@user.Id">Manage Patient</a>
                     }
                     @if (user.Roles.Contains("Clinician"))
                     {

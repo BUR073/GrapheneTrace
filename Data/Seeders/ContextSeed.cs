@@ -10,7 +10,7 @@ namespace GrapheneTrace.Data.Seeders
     {
         public static async Task SeedRolesAsync(RoleManager<IdentityRole<int>> roleManager)
         {
-            string[] roleNames = { "Admin", "Clinician", "User" };
+            string[] roleNames = { "Admin", "Clinician", "Patient" };
             foreach (var roleName in roleNames)
             {
                 if (!await roleManager.RoleExistsAsync(roleName))

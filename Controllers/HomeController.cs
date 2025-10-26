@@ -90,7 +90,7 @@ namespace GrapheneTrace.Controllers
             return View();
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Patient")]
         public IActionResult UserHome()
         {
             return View();
