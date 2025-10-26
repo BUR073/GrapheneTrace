@@ -8,13 +8,13 @@ namespace GrapheneTrace.Models.Database
     {
         [Key] public int DiagnosticsID { get; set; }
 
-        public int DatID { get; set; }
-        [ForeignKey(nameof(DataID))] 
-        public Data DataID { get; set; }
+        public int DataId { get; set; }
+        [ForeignKey(nameof(DataId))] 
+        public required Data Data{ get; set; }
 
-        public string PatientCondition { get; set; } = string.empty()
+        public string PatientCondition { get; set; } = string.Empty;
 
-        public string Medication { get; set; } = string.empty()
+        public string Medication { get; set; } = string.Empty;
 
     }
 }

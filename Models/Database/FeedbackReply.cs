@@ -11,9 +11,9 @@ namespace GrapheneTrace.Models.Database
         [Key]
         public int FeedbackReplyID { get; set; }
         
-        public int FeedbackID { get; set; }
-        [ForeignKey(nameof(FeedbackID))] 
-        public Feedback FeedbackID { get; set; }
+        public int FeedbackId { get; set; }
+        [ForeignKey(nameof(FeedbackId))] 
+        public required Feedback Feedback { get; set; }
         
         public int UserId { get; set; } 
         [ForeignKey(nameof(UserId))] 

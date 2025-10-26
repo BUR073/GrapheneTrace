@@ -13,15 +13,15 @@ namespace GrapheneTrace.Models.Database
         
         public int UserId { get; set; } 
         [ForeignKey(nameof(UserId))] 
-        public ApplicationUser User { get; set; } = null!;
+        public required ApplicationUser User { get; set; } = null!;
         
         public int DataId { get; set; }
         [ForeignKey(nameof(DataId))]
-        public Data DataId { get; set; } = null!;
+        public required Data Data { get; set; } = null!;
         
-        public string Comment { get; set; }
+        public required string Comment { get; set; }
         
-        public DateTime TimeStamp { get; set; }
+        public required DateTime TimeStamp { get; set; }
         
     }
 }

@@ -13,11 +13,11 @@ namespace GrapheneTrace.Models.Database
         
         public int DataId { get; set; }
         [ForeignKey(nameof(DataId))]
-        public Data DataId { get; set; } 
+        public required Data Data { get; set; } = null!;
         
-        public string Alert { get; set; } 
+        public required string AlertText { get; set; } 
         
-        public DateTime TimeStamp { get; set; }
+        public required DateTime TimeStamp { get; set; }
         
         public DateTime UpdatedAt { get; set; }
     }
