@@ -5,7 +5,7 @@ using GrapheneTrace.Areas.Identity.Data;
 
 namespace GrapheneTrace.Models.Database
 {
-
+    [Table("HeatmapChunk", Schema = "GrapheneTrace")]
     public class HeatmapChunk
     {
         [Key]

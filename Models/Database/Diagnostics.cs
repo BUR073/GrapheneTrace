@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GrapheneTrace.Models.Database
 {
+    [Table("Diagnostics", Schema = "GrapheneTrace")]
     public class Diagnostics
     {
         [Key] public int DiagnosticsID { get; set; }

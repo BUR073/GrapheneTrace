@@ -5,7 +5,7 @@ using GrapheneTrace.Areas.Identity.Data;
 
 namespace GrapheneTrace.Models.Database
 {
-
+    [Table("Feedback", Schema = "GrapheneTrace")]
     public class Feedback
     {
         [Key]

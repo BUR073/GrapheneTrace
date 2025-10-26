@@ -4,7 +4,8 @@ using GrapheneTrace.Areas.Identity.Data;
 
 
 namespace GrapheneTrace.Models.Database
-{
+{   
+    [Table("PatientClinician", Schema = "GrapheneTrace")]
     public class PatientClinician
     {
         [Key, Column(Order = 0)]
