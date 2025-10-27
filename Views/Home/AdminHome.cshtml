@@ -53,11 +53,13 @@
                 <div class="action-slot">
                     @if (user.Roles.Contains("Patient"))
                     {
-                        <a class="btn btn-primary btn-sm w-100" asp-controller="Admin" asp-action="ManagePatient" asp-route-id="@user.Id">Manage Patient</a>
+                        var patientBtnClass = user.PatientLinkCount > 0 ? "btn-primary" : "btn-warning";
+                        <a class="btn @patientBtnClass btn-sm w-100" asp-controller="Admin" asp-action="ManagePatient" asp-route-id="@user.Id">Manage Patient</a>
                     }
                     @if (user.Roles.Contains("Clinician"))
-                    {
-                        <a class="btn btn-primary btn-sm w-100" asp-controller="Admin" asp-action="ManageClinician" asp-route-id="@user.Id">Manage Clinician</a>
+                    {   
+                        var ClinicianBtnClass = user.ClinicianLinkCount > 0 ? "btn-primary" : "btn-warning";
+                        <a class="btn @ClinicianBtnClass btn-sm w-100" asp-controller="Admin" asp-action="ManageClinician" asp-route-id="@user.Id">Manage Clinician</a>
                     }
                 </div>
 

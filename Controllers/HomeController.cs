@@ -7,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using GrapheneTrace.Areas.Identity.Data; 
+using GrapheneTrace.Data;
+using GrapheneTrace.Areas.Identity.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace GrapheneTrace.Controllers
 {
@@ -15,11 +18,13 @@ namespace GrapheneTrace.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger, UserManager<ApplicationUser> userManager)
+        public HomeController(ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
             _logger = logger;
             _userManager = userManager;
+            _context = context;
         }
 
         public async Task<IActionResult> Index()
@@ -50,28 +55,35 @@ namespace GrapheneTrace.Controllers
         {
             ViewData["CurrentFilter"] = searchString;
             
-            var allUsers = await _userManager.Users.ToListAsync();
-            var userViewModelList = new List<UserViewModel>();
-            
-            foreach (var user in allUsers)
-            {
-                userViewModelList.Add(new UserViewModel
+            var userViewModelList = await _userManager.Users
+                .Select(user => new UserViewModel
                 {
                     Id = user.Id,
                     Email = user.Email ?? "",
-                    Roles = new List<string>(await _userManager.GetRolesAsync(user)),
-                    DateOfBirth = user.DateOfBirth,
                     Name = user.Name ?? string.Empty,
-                });
-            }
+                    DateOfBirth = user.DateOfBirth,
+                    
+                    Roles = (from ur in _context.UserRoles
+                             join r in _context.Roles on ur.RoleId equals r.Id
+                             where ur.UserId == user.Id
+                             select r.Name).ToList(),
+                             
+                    PatientLinkCount = _context.PatientClinician
+                        .Count(pc => pc.PatientId == user.Id),
+                    
+                    ClinicianLinkCount = _context.PatientClinician
+                        .Count(pc => pc.ClinicianId == user.Id)
+                })
+                .ToListAsync();
             
             if (!string.IsNullOrEmpty(searchString))
             {
                 var upperSearchString = searchString.ToUpper();
-        
+
                 userViewModelList = userViewModelList.Where(u => 
                     u.Email.ToUpper().Contains(upperSearchString) ||
                     u.Id.ToString() == searchString ||
+                    (u.Name != null && u.Name.ToUpper().Contains(upperSearchString)) ||
                     u.Roles.Any(role => role.ToUpper().Contains(upperSearchString))
                 ).ToList();
             }
@@ -80,9 +92,10 @@ namespace GrapheneTrace.Controllers
             {
                 Users = userViewModelList
             };
-    
+
             return View(viewModel);
         }
+    
 
         [Authorize(Roles = "Clinician")]
         public IActionResult ClinicianHome()

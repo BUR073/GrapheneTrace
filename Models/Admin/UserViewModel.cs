@@ -11,5 +11,8 @@ namespace GrapheneTrace.Models
         public String Name { get; set; } = string.Empty;
         
         public DateTime DateOfBirth { get; set; }
+        
+        public int PatientLinkCount { get; set; }
+        public int ClinicianLinkCount { get; set; }
     }
 }
