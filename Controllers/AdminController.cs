@@ -9,6 +9,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using GrapheneTrace.Areas.Identity.Data;
+using GrapheneTrace.Data; 
+using GrapheneTrace.Models.Database; 
 
 
 [Authorize(Roles = "Admin")]
@@ -16,11 +18,13 @@ public class AdminController : Controller
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole<int>> _roleManager;
+    private readonly ApplicationDbContext _context;
     
-    public AdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<int>> roleManager)
+    public AdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<int>> roleManager, ApplicationDbContext context)
     {
         _userManager = userManager;
         _roleManager = roleManager;
+        _context = context;
     }
     
     [HttpGet]
@@ -197,5 +201,162 @@ public class AdminController : Controller
         }
 
         return RedirectToAction("AdminHome", "Home");
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> ManagePatient(int id)
+    {
+        var patient = await _userManager.FindByIdAsync(id.ToString());
+        if (patient == null) return NotFound();
+
+        var allClinicians = await _userManager.GetUsersInRoleAsync("Clinician");
+    
+        var alreadyLinkedClinicianIds = await _context.PatientClinician
+            .Where(pc => pc.PatientId == id)
+            .Select(pc => pc.ClinicianId)
+            .ToListAsync();
+        
+        var model = new ManageLinksViewModel
+        {
+            PrimaryUserId = patient.Id,
+            PrimaryUserName = patient.Name,
+            PrimaryUserRole = "Patient", 
+            
+            AssignedLinks = allClinicians
+                .Where(c => alreadyLinkedClinicianIds.Contains(c.Id)) 
+                .Select(c => new SelectListItem
+                {
+                    Text = $"{c.Name} ({c.Email})",
+                    Value = c.Id.ToString()
+                }).ToList(),
+            
+            AvailableLinks = allClinicians
+                .Where(c => !alreadyLinkedClinicianIds.Contains(c.Id)) 
+                .Select(c => new SelectListItem
+                {
+                    Text = $"{c.Name} ({c.Email})",
+                    Value = c.Id.ToString()
+                }).ToList(),
+            
+            SelectedLinkIds = alreadyLinkedClinicianIds 
+        };
+        return View("ManageLinks", model); 
+    }
+    
+    [HttpGet]
+    [HttpGet]
+    public async Task<IActionResult> ManageClinician(int id)
+    {
+        var clinician = await _userManager.FindByIdAsync(id.ToString());
+        if (clinician == null) return NotFound();
+
+        var allPatients = await _userManager.GetUsersInRoleAsync("Patient");
+    
+        var alreadyLinkedPatientIds = await _context.PatientClinician
+            .Where(pc => pc.ClinicianId == id)
+            .Select(pc => pc.PatientId)
+            .ToListAsync();
+
+        var model = new ManageLinksViewModel
+        {
+            PrimaryUserId = clinician.Id,
+            PrimaryUserName = clinician.Name ?? clinician.Email ?? "",
+            PrimaryUserRole = "Clinician",
+        
+            AssignedLinks = allPatients
+                .Where(p => alreadyLinkedPatientIds.Contains(p.Id)) 
+                .Select(p => new SelectListItem
+                {
+                    Text = $"{p.Name} ({p.Email})",
+                    Value = p.Id.ToString()
+                }).ToList(),
+        
+            AvailableLinks = allPatients
+                .Where(p => !alreadyLinkedPatientIds.Contains(p.Id))
+                .Select(p => new SelectListItem
+                {
+                    Text = $"{p.Name} ({p.Email})",
+                    Value = p.Id.ToString()
+                }).ToList(),
+
+            SelectedLinkIds = alreadyLinkedPatientIds
+        };
+        return View("ManageLinks", model);
+    }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ManagePatient(ManageLinksViewModel model)
+    {
+        await UpdatePatientClinicianLinksAsync(
+            primaryUserId: model.PrimaryUserId, 
+            selectedLinkIds: model.SelectedLinkIds, 
+            isManagingPatient: true); 
+            
+        return RedirectToAction("AdminHome", "Home");
+    }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ManageClinician(ManageLinksViewModel model)
+    {
+        await UpdatePatientClinicianLinksAsync(
+            primaryUserId: model.PrimaryUserId, 
+            selectedLinkIds: model.SelectedLinkIds, 
+            isManagingPatient: false); 
+
+        return RedirectToAction("AdminHome", "Home");
+    }
+    
+     private async Task UpdatePatientClinicianLinksAsync(int primaryUserId, List<int> selectedLinkIds, bool isManagingPatient)
+    {
+        IQueryable<PatientClinician> query = _context.PatientClinician;
+        if (isManagingPatient)
+        {
+            query = query.Where(pc => pc.PatientId == primaryUserId);
+        }
+        else
+        {
+            query = query.Where(pc => pc.ClinicianId == primaryUserId);
+        }
+        
+        var currentlyLinkedIds = await query
+            .Select(pc => isManagingPatient ? pc.ClinicianId : pc.PatientId)
+            .ToListAsync();
+
+        var newlySelectedIds = selectedLinkIds ?? new List<int>();
+
+        var idsToAdd = newlySelectedIds.Except(currentlyLinkedIds).ToList();
+        
+        var idsToRemove = currentlyLinkedIds.Except(newlySelectedIds).ToList();
+        
+        foreach (var idToAdd in idsToAdd)
+        {
+            var newLink = isManagingPatient
+                ? new PatientClinician { PatientId = primaryUserId, ClinicianId = idToAdd }
+                : new PatientClinician { PatientId = idToAdd, ClinicianId = primaryUserId };
+                
+            _context.PatientClinician.Add(newLink);
+        }
+        
+        if (idsToRemove.Any())
+        {
+            IQueryable<PatientClinician> linksToRemoveQuery;
+            if (isManagingPatient)
+            {
+                linksToRemoveQuery = _context.PatientClinician
+                    .Where(pc => pc.PatientId == primaryUserId && idsToRemove.Contains(pc.ClinicianId));
+            }
+            else
+            {
+                linksToRemoveQuery = _context.PatientClinician
+                    .Where(pc => pc.ClinicianId == primaryUserId && idsToRemove.Contains(pc.PatientId));
+            }
+            
+            var linksToRemove = await linksToRemoveQuery.ToListAsync();
+            _context.PatientClinician.RemoveRange(linksToRemove);
+        }
+
+        await _context.SaveChangesAsync();
     }
 }
