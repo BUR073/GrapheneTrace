@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using GrapheneTrace.Areas.Identity.Data;
 using Microsoft.Extensions.Logging;
+using GrapheneTrace.Models.Database;
+using System.Globalization;
+using Microsoft.EntityFrameworkCore;
 
 namespace GrapheneTrace.Data.Seeders
 {
@@ -20,12 +23,150 @@ namespace GrapheneTrace.Data.Seeders
             }
         }
 
+        public static async Task SeedHeatmapDataAsync(UserManager<ApplicationUser> userManager, ApplicationDbContext context, ILogger logger)
+        {
+            string baseDirectory = AppContext.BaseDirectory;
+            string dataPath = Path.GetFullPath(Path.Combine(baseDirectory, "../../../Data/GrapheneTrace"));
+
+            if (!Directory.Exists(dataPath))
+            {
+                logger.LogWarning($"Seed data directory not found: {dataPath}. Skipping heatmap seed.");
+                return;
+            }
+            
+            var emails = new List<string>
+            {
+                "Patient1@gmail.com", "Patient2@gmail.com", "Patient3@gmail.com", "Patient4@gmail.com",
+                "Patient5@gmail.com"
+            };
+            
+            foreach (var email in emails)
+            {
+                var user = await userManager.FindByEmailAsync(email);
+                
+                if (user == null)
+                {
+                    logger.LogWarning($"User {email} not found.");
+                    continue;
+                }
+                
+                string searchPattern = $"{user.Name}_*.csv";
+
+                string[] userFiles = Directory.GetFiles(dataPath, searchPattern);
+                
+                foreach (var filePath in userFiles)
+                {
+                    try
+                    {
+                        string dateString = Path.GetFileNameWithoutExtension(filePath).Split('_').Last(); 
+                        
+                        DateTime fileTimestamp = DateTime.ParseExact(
+                            dateString, 
+                            "yyyyMMdd", 
+                            CultureInfo.InvariantCulture, 
+                            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+                        
+                        await ProcessFileAsync(context, user.Id, filePath, fileTimestamp, logger);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, $"Failed to process file: {filePath}.");
+                    }
+                }
+            }
+
+        }
+
+        private static async Task ProcessFileAsync(ApplicationDbContext context, int userId, string filePath,
+            DateTime fileTimestamp, ILogger logger)
+        {
+            
+            // Check wether the file has already been processed
+            if (await context.SensorData.AnyAsync(s => s.UserId == userId && s.Timestamp == fileTimestamp))
+            {
+                logger.LogInformation($"Data for user {userId} on {fileTimestamp.ToShortDateString()} already exists.");
+                return; 
+            }
+            
+            logger.LogInformation($"Processing file: {filePath} for user {userId}");
+            
+            using var transaction = await context.Database.BeginTransactionAsync();
+            // Try catch block to prevent loading half a file
+            try
+            {
+                // Create the sensorData record
+                var sensorData = new SensorData
+                {
+                    UserId = userId,
+                    Timestamp = fileTimestamp 
+                };
+                await context.SensorData.AddAsync(sensorData);
+                await context.SaveChangesAsync();
+                
+                // Create the heatmap record
+                var heatmap = new Heatmap
+                {
+                    DataId = sensorData.DataId, 
+                    PeakPressureIndex = 0.0f,   
+                    ContactAreaPercent = 0.0f   
+                };
+                await context.Heatmap.AddAsync(heatmap);
+                await context.SaveChangesAsync();
+                
+                int newHeatmapId = heatmap.HeatmapId;
+                
+                string[] allLines = await File.ReadAllLinesAsync(filePath);
+                var dataLines = allLines.ToArray();
+                
+                // Define the chunk size
+                const int chunkSize = 32;
+                int chunkNumber = 0;
+                
+                // Init the list to store the chunks
+                var chunks = new List<HeatmapChunk>();
+                
+                // Loop through all the chunks
+                for (int i = 0; i < dataLines.Length; i += chunkSize)
+                {
+                    
+                    var lines = dataLines.Skip(i).Take(chunkSize);
+                    
+                    // Join them all into one line seperated by new line chars - 1024 vals long
+                    string chunkData = string.Join("\n", lines);
+                    
+                    // Create the new record
+                    var chunk = new HeatmapChunk
+                    {
+                        HeatmapId = newHeatmapId, 
+                        ChunkNumber = chunkNumber,
+                        ChunkData = chunkData
+                    };
+                    
+                    chunks.Add(chunk);
+
+                    chunkNumber++;
+                }
+                
+                await context.HeatmapChunk.AddRangeAsync(chunks);
+                await context.SaveChangesAsync();
+
+                // Now save all the new records
+                await transaction.CommitAsync(); 
+                logger.LogInformation($"Successfully processed {filePath}.");
+            }
+            catch (Exception ex)
+            {
+     
+                await transaction.RollbackAsync(); 
+                logger.LogError(ex, $"Failed to process file {filePath}. Transaction rolled back.");
+            }
+        }
+
         public static async Task SeedPatientsAsync(UserManager<ApplicationUser> userManager, ILogger logger)
         {
             var patientsToSeed = new[]
             {
                 new {
-                    Id = 470800247,
                     UserName = "Patient1@gmail.com",
                     Email = "Patient1@gmail.com",
                     Name = "Patient1",
@@ -33,7 +174,6 @@ namespace GrapheneTrace.Data.Seeders
                     Password = "patient1"
                 },
                 new {
-                    Id = 1910926003,
                     UserName = "Patient2@gmail.com",
                     Email = "Patient2@gmail.com",
                     Name = "Patient2",
@@ -41,7 +181,6 @@ namespace GrapheneTrace.Data.Seeders
                     Password = "patient2"
                 },
                 new {
-                    Id = 1413301878,
                     UserName = "Patient3@gmail.com",
                     Email = "Patient3@gmail.com",
                     Name = "Patient3",
@@ -49,7 +188,6 @@ namespace GrapheneTrace.Data.Seeders
                     Password = "patient3"
                 },
                 new {
-                    Id = 3509601203,
                     UserName = "Patient4@gmail.com",
                     Email = "Patient4@gmail.com",
                     Name = "Patient4",
@@ -57,11 +195,10 @@ namespace GrapheneTrace.Data.Seeders
                     Password = "patient4"
                 },
                 new {
-                    Id = 3725499180,
                     UserName = "Patient5@gmail.com",
                     Email = "Patient5@gmail.com",
                     Name = "Patient5",
-                    DateOfBirth = new DateTime(165, 8, 5),
+                    DateOfBirth = new DateTime(1965, 8, 5),
                     Password = "patient5"
                 }
                 
@@ -75,7 +212,6 @@ namespace GrapheneTrace.Data.Seeders
 
                     ApplicationUser patient = new ApplicationUser
                     {
-                        Id = patientData.Id, 
                         UserName = patientData.UserName,
                         Email = patientData.Email,
                         EmailConfirmed = true,

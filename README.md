@@ -1,25 +1,12 @@
-# GrapheneTrace
+## Data Format
 
+Sensore pressure mapping sensors generate real-time pressure distribution heat maps,
+formatted as a time-ordered array of 32x32 matrices.
 
-# Keeping local repo up to date
-    git checkout main
-    git pull
-    
-    If you don't do this you may encounter nasty merge conflicts when pushing 
-    your branch
+Data for this live brief project will be
+formatted as a series of csv files (figure 1): separated by user ID and time/date.
 
-# Creating a branch
-    - git checkout -b "branch name"
-
-# Changing Branch
-    git checkout "branch name"
-
-# Pushing new code to remote
-    git add .
-    git commit -m "Commit message"
-    git push
-    
-    Then click the link in the command line to create merge request.
-    Once merge request is created ask other member of the group to review 
-    the code and merge it.
+Values in the database range from 1-255 according to pressure applied to the corresponding
+sensor pixel, with 1 being the default zero-force value, scaling linearly with pressure to
+saturation at 255.
 

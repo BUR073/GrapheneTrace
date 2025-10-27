@@ -31,16 +31,19 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var logger = services.GetRequiredService<ILogger<Program>>(); 
+	
 
 	try
 	{
     
     	var userManager = services.GetRequiredService<UserManager<ApplicationUser>>(); 
     	var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
+		var context = services.GetRequiredService<ApplicationDbContext>();
 
     	await ContextSeed.SeedRolesAsync(roleManager);
     	await ContextSeed.SeedAdminAsync(userManager, logger); 
 		await ContextSeed.SeedPatientsAsync(userManager, logger);
+		await ContextSeed.SeedHeatmapDataAsync(userManager, context, logger);
 	}
     catch (Exception ex)
     {

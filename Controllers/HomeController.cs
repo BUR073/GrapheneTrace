@@ -8,8 +8,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using GrapheneTrace.Areas.Identity.Data; 
 using GrapheneTrace.Data;
-using GrapheneTrace.Areas.Identity.Data;
-using Microsoft.EntityFrameworkCore;
+
 
 namespace GrapheneTrace.Controllers
 {
