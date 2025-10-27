@@ -40,6 +40,7 @@ using (var scope = app.Services.CreateScope())
 
     	await ContextSeed.SeedRolesAsync(roleManager);
     	await ContextSeed.SeedAdminAsync(userManager, logger); 
+		await ContextSeed.SeedPatientsAsync(userManager, logger);
 	}
     catch (Exception ex)
     {

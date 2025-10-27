@@ -30,24 +30,21 @@ namespace GrapheneTrace.Controllers
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
+            
+            if (user == null) {
                 return Challenge();
             }
             
-            // This code works as-is
-            if (await _userManager.IsInRoleAsync(user, "Admin"))
-            {
+            if (await _userManager.IsInRoleAsync(user, "Admin")) {
                 return RedirectToAction("AdminHome");
             }
-            else if (await _userManager.IsInRoleAsync(user, "Clinician"))
-            {
+            
+            if (await _userManager.IsInRoleAsync(user, "Clinician")) {
                 return RedirectToAction("ClinicianHome");
             }
-            else
-            {
-                return RedirectToAction("UserHome");
-            }
+        
+            return RedirectToAction("UserHome");
+            
         }
 
         [Authorize(Roles = "Admin")]
