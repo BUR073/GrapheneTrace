@@ -222,12 +222,12 @@ namespace GrapheneTrace.Data.Seeders
 
                     if (result.Succeeded)
                     {
-                        await userManager.AddToRoleAsync(patient, "Clinician");
-                        logger.LogInformation($"Clinican created: {patient.Name}");
+                        await userManager.AddToRoleAsync(clinican, "Clinician");
+                        logger.LogInformation($"Clinican created: {clinician.Name}");
                     }
                     else
                     {
-                        logger.LogError($"Clinican user creation failed for {patient.Name}.");
+                        logger.LogError($"Clinican user creation failed for {clinican.Name}.");
                         foreach (var error in result.Errors)
                         {
                             logger.LogError($"Error: {error.Code} - {error.Description}");
