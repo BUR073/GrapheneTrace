@@ -5,7 +5,6 @@ using GrapheneTrace.Areas.Identity.Data;
 
 namespace GrapheneTrace.Models.Database
 {
-    [Table("Feedback", Schema = "GrapheneTrace")]
     public class Feedback
     {
         [Key]
@@ -15,9 +14,9 @@ namespace GrapheneTrace.Models.Database
         [ForeignKey(nameof(UserId))] 
         public required ApplicationUser User { get; set; } = null!;
         
-        public int DataId { get; set; }
-        [ForeignKey(nameof(DataId))]
-        public required SensorData SensorData { get; set; } = null!;
+        public int ChunkId { get; set; }
+        [ForeignKey(nameof(ChunkId))]
+        public required HeatmapChunk HeatmapChunk { get; set; } = null!;
         
         public required string Comment { get; set; }
         

@@ -3,6 +3,7 @@ using System;
 using GrapheneTrace.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GrapheneTrace.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251027160707_smallChanges")]
+    partial class smallChanges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.9");
@@ -146,12 +149,12 @@ namespace GrapheneTrace.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ChunkId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Comment")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("DataId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("TimeStamp")
                         .HasColumnType("TEXT");
@@ -161,7 +164,7 @@ namespace GrapheneTrace.Data.Migrations
 
                     b.HasKey("FeedbackId");
 
-                    b.HasIndex("ChunkId");
+                    b.HasIndex("DataId");
 
                     b.HasIndex("UserId");
 
@@ -422,9 +425,9 @@ namespace GrapheneTrace.Data.Migrations
 
             modelBuilder.Entity("GrapheneTrace.Models.Database.Feedback", b =>
                 {
-                    b.HasOne("GrapheneTrace.Models.Database.HeatmapChunk", "HeatmapChunk")
+                    b.HasOne("GrapheneTrace.Models.Database.SensorData", "SensorData")
                         .WithMany("Feedback")
-                        .HasForeignKey("ChunkId")
+                        .HasForeignKey("DataId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -434,7 +437,7 @@ namespace GrapheneTrace.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("HeatmapChunk");
+                    b.Navigation("SensorData");
 
                     b.Navigation("User");
                 });
@@ -582,16 +585,13 @@ namespace GrapheneTrace.Data.Migrations
                     b.Navigation("Chunks");
                 });
 
-            modelBuilder.Entity("GrapheneTrace.Models.Database.HeatmapChunk", b =>
-                {
-                    b.Navigation("Feedback");
-                });
-
             modelBuilder.Entity("GrapheneTrace.Models.Database.SensorData", b =>
                 {
                     b.Navigation("Alerts");
 
                     b.Navigation("Diagnostics");
+
+                    b.Navigation("Feedback");
 
                     b.Navigation("Heatmap");
                 });

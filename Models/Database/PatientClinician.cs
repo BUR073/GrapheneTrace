@@ -5,7 +5,6 @@ using GrapheneTrace.Areas.Identity.Data;
 
 namespace GrapheneTrace.Models.Database
 {   
-    [Table("PatientClinician", Schema = "GrapheneTrace")]
     public class PatientClinician
     {
         public int PatientId { get; set; }

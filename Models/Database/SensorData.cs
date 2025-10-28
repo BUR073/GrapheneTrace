@@ -4,7 +4,6 @@ using GrapheneTrace.Areas.Identity.Data;
 
 namespace GrapheneTrace.Models.Database
 {
-    [Table("SensorData", Schema = "GrapheneTrace")]
     public class SensorData 
     {
         [Key]
@@ -18,7 +17,6 @@ namespace GrapheneTrace.Models.Database
         
         public Diagnostics? Diagnostics { get; set; } 
         
-        public ICollection<Feedback> Feedback { get; set; } = new List<Feedback>();
 
     }
 

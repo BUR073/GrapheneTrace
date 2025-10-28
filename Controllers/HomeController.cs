@@ -8,6 +8,8 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using GrapheneTrace.Areas.Identity.Data; 
 using GrapheneTrace.Data;
+using System.Collections.Generic; 
+using System.Linq;
 
 
 namespace GrapheneTrace.Controllers
@@ -100,9 +102,56 @@ namespace GrapheneTrace.Controllers
         }
 
         [Authorize(Roles = "Patient")]
-        public IActionResult UserHome()
+        public async Task<IActionResult> UserHome()
         {
-            return View();
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Challenge();
+            }
+
+            var recentSensorData = await _context.SensorData
+                .Include(sd => sd.Heatmap)
+                    .ThenInclude(h => h.Chunks) 
+                .Where(sd => sd.UserId == user.Id)
+                .OrderByDescending(sd => sd.Timestamp)
+                .FirstOrDefaultAsync();
+
+            var allGrids = new List<List<List<int>>>();
+            
+            if (recentSensorData?.Heatmap != null)
+            {
+                var allChunks = recentSensorData.Heatmap.Chunks
+                                    .OrderBy(c => c.ChunkNumber);
+                
+                foreach (var chunk in allChunks)
+                {
+                    if (string.IsNullOrEmpty(chunk.ChunkData)) continue;
+
+                    var grid = new List<List<int>>();
+                    var lines = chunk.ChunkData.Split('\n');
+                    foreach (var line in lines)
+                    {
+                        if (string.IsNullOrWhiteSpace(line)) continue;
+                        
+                        var row = line.Split(',')
+                                      .Select(s => int.Parse(s)) 
+                                      .ToList();
+                        grid.Add(row);
+                    }
+                    allGrids.Add(grid);
+                }
+            }
+            
+            ViewBag.AllHeatmapGrids = allGrids;
+            ViewBag.HeatmapTimestamp = recentSensorData?.Timestamp;
+
+            var allSensorData = await _context.SensorData
+                                        .Where(sd => sd.UserId == user.Id)
+                                        .OrderByDescending(sd => sd.Timestamp)
+                                        .ToListAsync();
+
+            return View(allSensorData);
         }
 
         public IActionResult Privacy()

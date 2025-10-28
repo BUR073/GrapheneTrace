@@ -4,7 +4,6 @@ using GrapheneTrace.Areas.Identity.Data;
 
 namespace GrapheneTrace.Models
 {
-    [Table("Data", Schema = "GrapheneTrace")]
     public class Data 
     {
         [Key]

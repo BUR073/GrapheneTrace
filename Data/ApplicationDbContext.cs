@@ -57,10 +57,11 @@ namespace GrapheneTrace.Data
                 .WithOne(d => d.SensorData)        
                 .OnDelete(DeleteBehavior.Cascade);  
             
-            // SensorData -> Feedback (1..* | 1..1)
-            builder.Entity<SensorData>()
-                .HasMany(sd => sd.Feedback)
-                .WithOne(f => f.SensorData)
+            // HeatmapChunk -> Feedback (1..* | 1..1)
+            builder.Entity<HeatmapChunk>()
+                .HasMany(hc => hc.Feedback)
+                .WithOne(f => f.HeatmapChunk)
+                .HasForeignKey(f => f.ChunkId)
                 .OnDelete(DeleteBehavior.Cascade);
                 
            // Feedback -> User (1..1 | 0..*)
