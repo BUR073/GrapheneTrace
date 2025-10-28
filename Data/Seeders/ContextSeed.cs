@@ -227,7 +227,7 @@ namespace GrapheneTrace.Data.Seeders
                     }
                     else
                     {
-                        logger.LogError($"Clinican user creation failed for {clinican.Name}.");
+                        logger.LogError($"Clinican user creation failed for {clinician.Name}.");
                         foreach (var error in result.Errors)
                         {
                             logger.LogError($"Error: {error.Code} - {error.Description}");
