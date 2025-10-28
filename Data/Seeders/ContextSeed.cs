@@ -161,7 +161,81 @@ namespace GrapheneTrace.Data.Seeders
                 logger.LogError(ex, $"Failed to process file {filePath}. Transaction rolled back.");
             }
         }
+        
+        public static async Task SeedCliniciansAsync(UserManager<ApplicationUser> userManager, ILogger logger)
+        {
+            var cliniciansToSeed = new[]
+            {
+                new {
+                    UserName = "Clinician1@gmail.com",
+                    Email = "Clinician1@gmail.com",
+                    Name = "Dr. John Davis",
+                    DateOfBirth = new DateTime(1992, 3, 12),
+                    Password = "Clinician1"
+                },
+                new {
+                    UserName = "Clinician2@gmail.com",
+                    Email = "Clinician2@gmail.com",
+                    Name = "Dr. Sarah Jenkins",
+                    DateOfBirth = new DateTime(1995, 6, 20),
+                    Password = "Clinician2"
+                },
+                new {
+                    UserName = "Clinician3@gmail.com",
+                    Email = "Clinician3@gmail.com",
+                    Name = "Dr. Michael Chen",
+                    DateOfBirth = new DateTime(2001, 1, 8),
+                    Password = "Clinician3"
+                },
+                new {
+                    UserName = "Clinician4@gmail.com",
+                    Email = "Clinician4@gmail.com",
+                    Name = "Dr. Emily Rodriguez",
+                    DateOfBirth = new DateTime(1976, 11, 5),
+                    Password = "Clinician4"
+                },
+                new {
+                    UserName = "Clinician5@gmail.com",
+                    Email = "Clinician5@gmail.com",
+                    Name = "Dr. David Patel",
+                    DateOfBirth = new DateTime(1965, 8, 5),
+                    Password = "Clinician5"
+                }
+            };
 
+            foreach (var clinicianData in cliniciansToSeed)
+            {
+                if (await userManager.FindByEmailAsync(clinicianData.Email) == null)
+                {
+                    logger.LogInformation($"Attempting to create Clinician: {clinicianData.Name}");
+
+                    ApplicationUser clinician = new ApplicationUser
+                    {
+                        UserName = clinicianData.UserName,
+                        Email = clinicianData.Email,
+                        EmailConfirmed = true,
+                        Name = clinicianData.Name,
+                        DateOfBirth = clinicianData.DateOfBirth,
+                    };
+
+                    var result = await userManager.CreateAsync(clinician, clinicianData.Password);
+
+                    if (result.Succeeded)
+                    {
+                        await userManager.AddToRoleAsync(patient, "Clinician");
+                        logger.LogInformation($"Clinican created: {patient.Name}");
+                    }
+                    else
+                    {
+                        logger.LogError($"Clinican user creation failed for {patient.Name}.");
+                        foreach (var error in result.Errors)
+                        {
+                            logger.LogError($"Error: {error.Code} - {error.Description}");
+                        }
+                    }
+                }
+            }
+        }
         public static async Task SeedPatientsAsync(UserManager<ApplicationUser> userManager, ILogger logger)
         {
             var patientsToSeed = new[]
@@ -169,39 +243,38 @@ namespace GrapheneTrace.Data.Seeders
                 new {
                     UserName = "Patient1@gmail.com",
                     Email = "Patient1@gmail.com",
-                    Name = "Patient1",
+                    Name = "Alice Smith",
                     DateOfBirth = new DateTime(1992, 3, 12),
                     Password = "patient1"
                 },
                 new {
                     UserName = "Patient2@gmail.com",
                     Email = "Patient2@gmail.com",
-                    Name = "Patient2",
+                    Name = "Ben Williams",
                     DateOfBirth = new DateTime(1995, 6, 20),
                     Password = "patient2"
                 },
                 new {
                     UserName = "Patient3@gmail.com",
                     Email = "Patient3@gmail.com",
-                    Name = "Patient3",
+                    Name = "Chloe Brown",
                     DateOfBirth = new DateTime(2001, 1, 8),
                     Password = "patient3"
                 },
                 new {
                     UserName = "Patient4@gmail.com",
                     Email = "Patient4@gmail.com",
-                    Name = "Patient4",
+                    Name = "James Taylor",
                     DateOfBirth = new DateTime(1976, 11, 5),
                     Password = "patient4"
                 },
                 new {
                     UserName = "Patient5@gmail.com",
                     Email = "Patient5@gmail.com",
-                    Name = "Patient5",
+                    Name = "Olivia Evans",
                     DateOfBirth = new DateTime(1965, 8, 5),
                     Password = "patient5"
                 }
-                
             };
 
             foreach (var patientData in patientsToSeed)
