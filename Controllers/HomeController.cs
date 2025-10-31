@@ -10,6 +10,8 @@ using GrapheneTrace.Areas.Identity.Data;
 using GrapheneTrace.Data;
 using System.Collections.Generic; 
 using System.Linq;
+using GrapheneTrace.Models.Database;
+using GrapheneTrace.Services;
 
 
 namespace GrapheneTrace.Controllers
@@ -20,12 +22,13 @@ namespace GrapheneTrace.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
-
-        public HomeController(ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, ApplicationDbContext context)
+        private readonly IHeatmapService _heatmapService;
+        public HomeController(ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, ApplicationDbContext context, IHeatmapService heatmapService)
         {
             _logger = logger;
             _userManager = userManager;
             _context = context;
+            _heatmapService = heatmapService; 
         }
 
         public async Task<IActionResult> Index()
@@ -102,20 +105,53 @@ namespace GrapheneTrace.Controllers
         }
 
         [Authorize(Roles = "Patient")]
-        public async Task<IActionResult> UserHome()
+        public async Task<IActionResult> UserHome(int? dataId)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Challenge();
             }
+            
+            SensorData recentSensorData = null;
+            
+            if (dataId.HasValue)
+            {
+                recentSensorData = await _context.SensorData
+                    .Include(sd => sd.Heatmap)
+                    .ThenInclude(h => h.Chunks)
+                    .Where(sd => sd.UserId == user.Id && sd.DataId == dataId.Value) 
+                    .FirstOrDefaultAsync();
+            }
+            else
+            {
+                recentSensorData = await _context.SensorData
+                    .Include(sd => sd.Heatmap)
+                    .ThenInclude(h => h.Chunks)
+                    .Where(sd => sd.UserId == user.Id)
+                    .OrderByDescending(sd => sd.Timestamp)
+                    .FirstOrDefaultAsync();
+            }
+            
+            if (recentSensorData?.Heatmap?.Chunks != null)
+            {
+                var chunksToProcess = recentSensorData.Heatmap.Chunks
+                    .Where(c => c.PeakPressureIndex == 0.0f && c.ContactAreaPercent == 0.0f
+                    .ToList();
+                
+                if (chunksToProcess.Any())
+                {
+                    foreach (var chunk in chunksToProcess)
+                    {
+                        var lines = chunk.ChunkData.Split('\n');
 
-            var recentSensorData = await _context.SensorData
-                .Include(sd => sd.Heatmap)
-                    .ThenInclude(h => h.Chunks) 
-                .Where(sd => sd.UserId == user.Id)
-                .OrderByDescending(sd => sd.Timestamp)
-                .FirstOrDefaultAsync();
+                        chunk.PeakPressureIndex = _heatmapService.CalculatePeakPressure(lines);
+                        chunk.ContactAreaPercent = _heatmapService.CalculateContactAreaPercent(lines);
+                    }
+                    
+                    await _context.SaveChangesAsync();
+                }
+            }
 
             var allGrids = new List<List<List<int>>>();
             

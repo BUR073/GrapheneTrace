@@ -49,8 +49,7 @@ namespace GrapheneTrace.Data.Seeders
                     logger.LogWarning($"User {email} not found.");
                     continue;
                 }
-                
-                string searchPattern = $"{user.Name}_*.csv";
+                string searchPattern = $"{email.Split('@')[0]}_*.csv";
 
                 string[] userFiles = Directory.GetFiles(dataPath, searchPattern);
                 

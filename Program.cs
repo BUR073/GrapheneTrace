@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using GrapheneTrace.Data.Seeders;
 using GrapheneTrace.Data;              
 using GrapheneTrace.Areas.Identity.Data;  
+using GrapheneTrace.Services; 
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
@@ -25,34 +25,35 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>(options => {
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
+builder.Services.AddScoped<IHeatmapService, HeatmapService>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var logger = services.GetRequiredService<ILogger<Program>>(); 
-	
-
-	try
-	{
     
-    	var userManager = services.GetRequiredService<UserManager<ApplicationUser>>(); 
-    	var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
-		var context = services.GetRequiredService<ApplicationDbContext>();
 
-    	await ContextSeed.SeedRolesAsync(roleManager);
-    	await ContextSeed.SeedAdminAsync(userManager, logger); 
-		await ContextSeed.SeedPatientsAsync(userManager, logger);
-		await ContextSeed.SeedCliniciansAsync(userManager, logger);
-		await ContextSeed.SeedHeatmapDataAsync(userManager, context, logger);
-	}
+    try
+    {
+    
+        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>(); 
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
+       var context = services.GetRequiredService<ApplicationDbContext>();
+
+        await ContextSeed.SeedRolesAsync(roleManager);
+        await ContextSeed.SeedAdminAsync(userManager, logger); 
+       await ContextSeed.SeedPatientsAsync(userManager, logger);
+       await ContextSeed.SeedCliniciansAsync(userManager, logger);
+       await ContextSeed.SeedHeatmapDataAsync(userManager, context, logger);
+    }
     catch (Exception ex)
     {
         logger.LogError(ex, "An error occurred during database seeding.");
     }
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
@@ -60,7 +61,6 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
