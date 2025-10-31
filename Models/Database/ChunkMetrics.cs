@@ -15,5 +15,6 @@ namespace GrapheneTrace.Models.Database
         public HeatmapChunk HeatmapChunk { get; set; }
         public float PeakPressureIndex { get; set; }
         public float ContactAreaPercent { get; set; }
+        public float AveragePressure { get; set; }
     }
 }

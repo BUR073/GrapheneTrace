@@ -8,6 +8,8 @@ namespace GrapheneTrace.Models.Patient
     {
         public float PeakPressure { get; set; }
         public float ContactArea { get; set; }
+        public float AveragePressure { get; set; }
+        
         
     }
 }

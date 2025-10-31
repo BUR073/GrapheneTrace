@@ -7,6 +7,7 @@ export function initHeatmap(allGridsData, allMetricsData) {
     const playPauseBtn = document.getElementById('playPauseBtn');
     const chunkIndicator = document.getElementById('chunkIndicator');
     const peakPressureEl = document.getElementById('peakPressure');
+    const averagePressureEl = document.getElementById('averagePressure');
     const contactAreaEl = document.getElementById('contactArea');
 
     const cellSize = 10;
@@ -34,6 +35,7 @@ export function initHeatmap(allGridsData, allMetricsData) {
         if (metrics) {
             peakPressureEl.textContent = metrics.PeakPressure.toFixed(2);
             contactAreaEl.textContent = metrics.ContactArea.toFixed(2);
+            averagePressureEl.textContent = metrics.AveragePressure.toFixed(2);
         }
     }
 

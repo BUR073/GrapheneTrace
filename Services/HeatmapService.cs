@@ -56,15 +56,45 @@ namespace GrapheneTrace.Services
         {
             float peakPressure = CalculatePeakPressure(chunkLines);
             float contactAreaPercent =  CalculateContactAreaPercent(chunkLines);
+            float AveragePressure = CalculateAveragePressure(chunkLines);
             
             ChunkMetrics metrics = new ChunkMetrics()
             {
                 ChunkId = chunkId,
                 PeakPressureIndex =  peakPressure, 
                 ContactAreaPercent = contactAreaPercent,
+                AveragePressure =  AveragePressure,
             };
 
             return metrics; 
+        }
+
+        private float CalculateAveragePressure(IEnumerable<string> chunkLines)
+        {
+            float totalVals = 1024;
+            float total = 0;
+
+            foreach (var line in chunkLines)
+            {
+                if (string.IsNullOrWhiteSpace(line)) continue;
+
+                var lineSplit = line.Split(',');
+
+                foreach (var val in lineSplit)
+                {
+                    if (int.TryParse(val, out var value))
+                    {
+                        total +=  value;
+                    }
+                }
+            }
+
+            if (total == 0)
+            {
+                return 0.0f;
+            }
+            
+            return (total/totalVals);
         }
 
         private float CalculatePeakPressure(IEnumerable<string> chunkLines)

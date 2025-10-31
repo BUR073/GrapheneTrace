@@ -28,7 +28,8 @@ namespace GrapheneTrace.Services
                 .Select(c => new ChunkMetricModel
                 {
                     PeakPressure = c.Metrics?.PeakPressureIndex ?? 0,
-                    ContactArea = c.Metrics?.ContactAreaPercent ?? 0
+                    ContactArea = c.Metrics?.ContactAreaPercent ?? 0,
+                    AveragePressure = c.Metrics?.AveragePressure ?? 0,
                 })
                 .ToList();
         }
