@@ -11,6 +11,7 @@ export function initHeatmap(allGridsData, allMetricsData) {
     const minPressureEl = document.getElementById('minPressure');
     const maxPressureEl = document.getElementById('maxPressure');
     const contactAreaEl = document.getElementById('contactArea');
+    const commentsChunkIdEl = document.getElementById('commentsChunkId');
 
     const cellSize = 10;
     let isPlaying = false;
@@ -51,6 +52,7 @@ export function initHeatmap(allGridsData, allMetricsData) {
 
     function updateUI(chunkIndex) {
         slider.value = chunkIndex;
+        commentsChunkIdEl.value = chunkIndex + 1;
         chunkIndicator.textContent = `Chunk ${chunkIndex + 1} / ${allGridsData.length}`;
     }
 

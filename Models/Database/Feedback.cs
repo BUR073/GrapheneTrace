@@ -12,11 +12,11 @@ namespace GrapheneTrace.Models.Database
         
         public int UserId { get; set; } 
         [ForeignKey(nameof(UserId))] 
-        public required ApplicationUser User { get; set; } = null!;
+        public ApplicationUser User { get; set; }
         
         public int ChunkId { get; set; }
         [ForeignKey(nameof(ChunkId))]
-        public required HeatmapChunk HeatmapChunk { get; set; } = null!;
+        public HeatmapChunk HeatmapChunk { get; set; } 
         
         public required string Comment { get; set; }
         

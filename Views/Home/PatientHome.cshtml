@@ -16,37 +16,39 @@
                 <strong>@Model.HeatmapTimestamp?.ToString("dd MMMM yyyy")</strong>
             </p>
 
-            <canvas id="heatmapCanvas"
-                    width="320"
-                    height="320"
-                    style="border: 1px solid #ccc; background-color: #f9f9f9;"></canvas>
-            
-            <div class="mt-3">
-                <strong>Chunk Metrics:</strong>
-                <p>Peak Pressure: <span id="peakPressure">0</span></p>
-                <p>Average Pressure: <span id="averagePressure">0</span></p>
-                <p>Minimum Pressure: <span id="minPressure">0</span></p>
-                <p>Maximum Pressure: <span id="maxPressure">0</span></p>
-                <p>Contact Area: <span id="contactArea">0</span>%</p>
-            </div>
-
-            <div class="mt-3">
-                <div class="d-flex align-items-center">
-                    <button id="playPauseBtn" class="btn btn-primary me-2">Play</button>
-                    <input type="range"
-                           id="chunkSlider"
-                           class="form-range"
-                           min="0"
-                           max="@(Model.AllHeatmapGrids.Count - 1)"
-                           value="0" />
+            <!-- Container to control width -->
+            <div style="max-width: 320px;">
+                <canvas id="heatmapCanvas"
+                        width="320"
+                        height="320"
+                        style="border: 1px solid #ccc; background-color: #f9f9f9; display: block; margin-bottom: 1rem;"></canvas>
+                
+                <div class="mt-3">
+                    <strong>Chunk Metrics:</strong>
+                    <p>Peak Pressure: <span id="peakPressure">0</span></p>
+                    <p>Average Pressure: <span id="averagePressure">0</span></p>
+                    <p>Minimum Pressure: <span id="minPressure">0</span></p>
+                    <p>Maximum Pressure: <span id="maxPressure">0</span></p>
+                    <p>Contact Area: <span id="contactArea">0</span>%</p>
                 </div>
 
-                <div class="text-center mt-1">
-                    <span id="chunkIndicator">Chunk 1 / @Model.AllHeatmapGrids.Count</span>
+                <div class="mt-3">
+                    <div class="d-flex align-items-center">
+                        <button id="playPauseBtn" class="btn btn-primary me-2">Play</button>
+                        <input type="range"
+                               id="chunkSlider"
+                               class="form-range"
+                               min="0"
+                               max="@(Model.AllHeatmapGrids.Count - 1)"
+                               value="0"
+                               style="flex-grow: 1;"/>
+                    </div>
+
+                    <div class="text-center mt-1">
+                        <span id="chunkIndicator">Chunk 1 / @Model.AllHeatmapGrids.Count</span>
+                    </div>
                 </div>
             </div>
-            
-
         }
         else
         {
@@ -56,7 +58,7 @@
             </div>
         }
     </div>
-    
+
     <div class="col-md-4">
         <h4>Your Data History</h4>
         <p>You have @Model.AllSensorData.Count record(s) on file.</p>
@@ -78,8 +80,24 @@
                 <div class="list-group-item">No records found.</div>
             }
         </div>
+
+        <div class="mt-4">
+            <h5>Comments</h5>
+            <form asp-controller="Feedback" asp-action="AddFeedback" method="post">
+                <label for="commentsChunkId">Chunk ID:</label>
+                <input id="commentsChunkId" name="ChunkId" type="number" class="form-control" min="0" max="4278" step="1"/>
+        
+                <label for="commentText" class="mt-2">Comment:</label>
+                <textarea id="commentText" name="Text" class="form-control" rows="8" placeholder="Write your comments here..."></textarea>
+        
+                <button type="submit" class="btn btn-primary mt-2">Submit</button>
+            </form>
+        </div>
+
+
     </div>
 </div>
+
 
 @section Scripts {
     <script type="module">
