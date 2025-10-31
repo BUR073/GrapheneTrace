@@ -43,6 +43,7 @@ using (var scope = app.Services.CreateScope())
     	await ContextSeed.SeedRolesAsync(roleManager);
     	await ContextSeed.SeedAdminAsync(userManager, logger); 
 		await ContextSeed.SeedPatientsAsync(userManager, logger);
+		await ContextSeed.SeedCliniciansAsync(userManager, logger);
 		await ContextSeed.SeedHeatmapDataAsync(userManager, context, logger);
 	}
     catch (Exception ex)

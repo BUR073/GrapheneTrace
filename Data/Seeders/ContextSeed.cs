@@ -107,8 +107,7 @@ namespace GrapheneTrace.Data.Seeders
                 var heatmap = new Heatmap
                 {
                     DataId = sensorData.DataId, 
-                    PeakPressureIndex = 0.0f,   
-                    ContactAreaPercent = 0.0f   
+ 
                 };
                 await context.Heatmap.AddAsync(heatmap);
                 await context.SaveChangesAsync();
@@ -139,7 +138,9 @@ namespace GrapheneTrace.Data.Seeders
                     {
                         HeatmapId = newHeatmapId, 
                         ChunkNumber = chunkNumber,
-                        ChunkData = chunkData
+                        ChunkData = chunkData,
+                        PeakPressureIndex = 0.0f,   
+                        ContactAreaPercent = 0.0f  
                     };
                     
                     chunks.Add(chunk);
@@ -222,7 +223,7 @@ namespace GrapheneTrace.Data.Seeders
 
                     if (result.Succeeded)
                     {
-                        await userManager.AddToRoleAsync(clinican, "Clinician");
+                        await userManager.AddToRoleAsync(clinician, "Clinician");
                         logger.LogInformation($"Clinican created: {clinician.Name}");
                     }
                     else
