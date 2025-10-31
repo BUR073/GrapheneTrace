@@ -15,8 +15,7 @@ namespace GrapheneTrace.Models.Database
         public Heatmap Heatmap { get; set; } = null!;
         public int ChunkNumber { get; set; }   
         public string ChunkData { get; set; } = string.Empty; 
-        public float PeakPressureIndex { get; set; }
-        public float ContactAreaPercent { get; set; }
+        public ChunkMetrics Metrics { get; set; }
         public ICollection<Feedback> Feedback { get; set; } = new List<Feedback>();
     }
 }

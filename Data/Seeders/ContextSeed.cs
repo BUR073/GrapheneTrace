@@ -138,8 +138,6 @@ namespace GrapheneTrace.Data.Seeders
                         HeatmapId = newHeatmapId, 
                         ChunkNumber = chunkNumber,
                         ChunkData = chunkData,
-                        PeakPressureIndex = 0.0f,   
-                        ContactAreaPercent = 0.0f  
                     };
                     
                     chunks.Add(chunk);

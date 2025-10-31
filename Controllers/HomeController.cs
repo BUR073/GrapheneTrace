@@ -120,6 +120,7 @@ namespace GrapheneTrace.Controllers
                 recentSensorData = await _context.SensorData
                     .Include(sd => sd.Heatmap)
                     .ThenInclude(h => h.Chunks)
+                    .ThenInclude(c => c.Metrics)
                     .Where(sd => sd.UserId == user.Id && sd.DataId == dataId.Value) 
                     .FirstOrDefaultAsync();
             }
@@ -128,6 +129,7 @@ namespace GrapheneTrace.Controllers
                 recentSensorData = await _context.SensorData
                     .Include(sd => sd.Heatmap)
                     .ThenInclude(h => h.Chunks)
+                    .ThenInclude(c => c.Metrics)
                     .Where(sd => sd.UserId == user.Id)
                     .OrderByDescending(sd => sd.Timestamp)
                     .FirstOrDefaultAsync();
@@ -136,7 +138,7 @@ namespace GrapheneTrace.Controllers
             if (recentSensorData?.Heatmap?.Chunks != null)
             {
                 var chunksToProcess = recentSensorData.Heatmap.Chunks
-                    .Where(c => c.PeakPressureIndex == 0.0f && c.ContactAreaPercent == 0.0f
+                    .Where(c => c.Metrics == null)
                     .ToList();
                 
                 if (chunksToProcess.Any())
@@ -145,8 +147,8 @@ namespace GrapheneTrace.Controllers
                     {
                         var lines = chunk.ChunkData.Split('\n');
 
-                        chunk.PeakPressureIndex = _heatmapService.CalculatePeakPressure(lines);
-                        chunk.ContactAreaPercent = _heatmapService.CalculateContactAreaPercent(lines);
+                        float PeakPressureIndex = _heatmapService.CalculatePeakPressure(lines);
+                        float ContactAreaPercent = _heatmapService.CalculateContactAreaPercent(lines);
                     }
                     
                     await _context.SaveChangesAsync();
