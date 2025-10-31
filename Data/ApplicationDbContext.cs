@@ -23,6 +23,7 @@ namespace GrapheneTrace.Data
         public DbSet<Heatmap>  Heatmap { get; set; }
         public DbSet<HeatmapChunk> HeatmapChunk { get; set; }
         public DbSet<PatientClinician> PatientClinician { get; set; }
+        public DbSet<ChunkMetrics> ChunkMetrics { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

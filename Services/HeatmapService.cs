@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using GrapheneTrace.Data;
 using GrapheneTrace.Models.Database; 
 using GrapheneTrace.Services;
+using GrapheneTrace.Models;
+using GrapheneTrace.Services.Interfaces;
 
 namespace GrapheneTrace.Services
 {
@@ -19,8 +21,38 @@ namespace GrapheneTrace.Services
         {
             _context = context;
         }
+        
+        public async Task ProcessMissingMetricsAsync(SensorData sensorData)
+        {
+            if (sensorData?.Heatmap?.Chunks == null)
+            {
+                return;
+            }
 
-        public async Task CalculateMetrics(IEnumerable<string> chunkLines, int chunkId)
+            var chunksToProcess = sensorData.Heatmap.Chunks
+                .Where(c => c.Metrics == null) // Find chunks without metrics
+                .ToList();
+
+            if (!chunksToProcess.Any())
+            {
+                return; 
+            }
+
+            var newMetricsList = new List<ChunkMetrics>();
+            foreach (var chunk in chunksToProcess)
+            {
+                var metrics = CalculateMetrics(
+                    chunk.ChunkData.Split('\n'), 
+                    chunk.ChunkId
+                );
+                newMetricsList.Add(metrics);
+            }
+            
+            await _context.ChunkMetrics.AddRangeAsync(newMetricsList);
+            await _context.SaveChangesAsync();
+        }
+
+        private ChunkMetrics CalculateMetrics(IEnumerable<string> chunkLines, int chunkId)
         {
             float peakPressure = CalculatePeakPressure(chunkLines);
             float contactAreaPercent =  CalculateContactAreaPercent(chunkLines);
@@ -31,13 +63,13 @@ namespace GrapheneTrace.Services
                 PeakPressureIndex =  peakPressure, 
                 ContactAreaPercent = contactAreaPercent,
             };
-            
-            await _context.ChunkMetrics.AddAsync(metrics);
-            await _context.SaveChangesAsync();
+
+            return metrics; 
         }
 
         private float CalculatePeakPressure(IEnumerable<string> chunkLines)
         {
+            //TODO: the logic
             return 0.0f;
         }
 

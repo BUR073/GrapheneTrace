@@ -4,6 +4,7 @@ using GrapheneTrace.Data.Seeders;
 using GrapheneTrace.Data;              
 using GrapheneTrace.Areas.Identity.Data;  
 using GrapheneTrace.Services; 
+using GrapheneTrace.Services.Interfaces; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 builder.Services.AddScoped<IHeatmapService, HeatmapService>();
+builder.Services.AddScoped<ISensorDataService, SensorDataService>();
 
 var app = builder.Build();
 
