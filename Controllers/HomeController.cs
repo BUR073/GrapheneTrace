@@ -126,6 +126,7 @@ namespace GrapheneTrace.Controllers
             {
                 AllHeatmapGrids = _sensorDataService.BuildHeatmapGrids(recentSensorData),
                 HeatmapTimestamp = recentSensorData?.Timestamp,
+                AllMetrics = _sensorDataService.GetMetrics(recentSensorData),
                 AllSensorData = await _sensorDataService.GetAllSensorDataAsync(user.Id)
             };
 

@@ -17,8 +17,23 @@ namespace GrapheneTrace.Services
         {
             _context = context;
         }
+        
+        public List<ChunkMetricModel> GetMetrics(SensorData sensorData)
+        {
+            if (sensorData?.Heatmap?.Chunks == null)
+                return new List<ChunkMetricModel>();
 
-        public async Task<SensorData> GetRecentSensorDataAsync(int userId, int? dataId)
+            return sensorData.Heatmap.Chunks
+                .OrderBy(c => c.ChunkNumber)
+                .Select(c => new ChunkMetricModel
+                {
+                    PeakPressure = c.Metrics?.PeakPressureIndex ?? 0,
+                    ContactArea = c.Metrics?.ContactAreaPercent ?? 0
+                })
+                .ToList();
+        }
+
+        public async Task<SensorData?> GetRecentSensorDataAsync(int userId, int? dataId)
         {
             var query = _context.SensorData
                 .Include(sd => sd.Heatmap)

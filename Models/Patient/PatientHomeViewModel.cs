@@ -8,6 +8,7 @@ namespace GrapheneTrace.Models.Patient
     {
         public List<SensorData> AllSensorData { get; set; } = new();
         public List<List<List<int>>> AllHeatmapGrids { get; set; } = new();
+        public List<ChunkMetricModel> AllMetrics { get; set; } = new();
         public DateTime? HeatmapTimestamp { get; set; }
     }
 }
