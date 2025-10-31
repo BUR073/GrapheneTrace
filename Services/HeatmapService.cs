@@ -1,19 +1,47 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks; 
+using GrapheneTrace.Data;
+using GrapheneTrace.Models.Database; 
 using GrapheneTrace.Services;
+
 namespace GrapheneTrace.Services
 {
 
 
     public class HeatmapService : IHeatmapService
     {
-        public float CalculatePeakPressure(IEnumerable<string> chunkLines)
+        
+        private readonly ApplicationDbContext _context;
+        
+        public HeatmapService(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task CalculateMetrics(IEnumerable<string> chunkLines, int chunkId)
+        {
+            float peakPressure = CalculatePeakPressure(chunkLines);
+            float contactAreaPercent =  CalculateContactAreaPercent(chunkLines);
+            
+            ChunkMetrics metrics = new ChunkMetrics()
+            {
+                ChunkId = chunkId,
+                PeakPressureIndex =  peakPressure, 
+                ContactAreaPercent = contactAreaPercent,
+            };
+            
+            await _context.ChunkMetrics.AddAsync(metrics);
+            await _context.SaveChangesAsync();
+        }
+
+        private float CalculatePeakPressure(IEnumerable<string> chunkLines)
         {
             return 0.0f;
         }
 
-        public float CalculateContactAreaPercent(IEnumerable<string> chunkLines)
+        private float CalculateContactAreaPercent(IEnumerable<string> chunkLines)
         {
             float totalVals = 1024;
             float NonZeroVals = 0;

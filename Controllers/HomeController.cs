@@ -140,18 +140,13 @@ namespace GrapheneTrace.Controllers
                 var chunksToProcess = recentSensorData.Heatmap.Chunks
                     .Where(c => c.Metrics == null)
                     .ToList();
-                
+
                 if (chunksToProcess.Any())
                 {
                     foreach (var chunk in chunksToProcess)
                     {
-                        var lines = chunk.ChunkData.Split('\n');
-
-                        float PeakPressureIndex = _heatmapService.CalculatePeakPressure(lines);
-                        float ContactAreaPercent = _heatmapService.CalculateContactAreaPercent(lines);
+                        _heatmapService.CalculateMetrics(chunk.ChunkData.Split('\n'), chunk.ChunkId);
                     }
-                    
-                    await _context.SaveChangesAsync();
                 }
             }
 

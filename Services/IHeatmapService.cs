@@ -4,8 +4,7 @@ namespace GrapheneTrace.Services
 {
     public interface IHeatmapService
     {
-        float CalculatePeakPressure(IEnumerable<string> chunkLines);
         
-        float CalculateContactAreaPercent(IEnumerable<string> chunkLines);
+        Task CalculateMetrics(IEnumerable<string> chunkLines, int chunkId);
     }
 }
