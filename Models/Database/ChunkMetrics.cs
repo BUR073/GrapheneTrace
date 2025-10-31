@@ -5,8 +5,6 @@ using GrapheneTrace.Areas.Identity.Data;
 
 namespace GrapheneTrace.Models.Database
 {
-
-
     public class ChunkMetrics
     {
         [Key]
@@ -16,5 +14,7 @@ namespace GrapheneTrace.Models.Database
         public float PeakPressureIndex { get; set; }
         public float ContactAreaPercent { get; set; }
         public float AveragePressure { get; set; }
+        public float MaxPressure{ get; set; }
+        public float MinPressure { get; set; }
     }
 }

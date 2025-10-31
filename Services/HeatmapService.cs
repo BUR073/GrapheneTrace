@@ -56,23 +56,30 @@ namespace GrapheneTrace.Services
         {
             float peakPressure = CalculatePeakPressure(chunkLines);
             float contactAreaPercent =  CalculateContactAreaPercent(chunkLines);
-            float AveragePressure = CalculateAveragePressure(chunkLines);
+            List<float> AverageMinMax = CalculateAverageAndMinMaxPressure(chunkLines);
+            float averagePressure = AverageMinMax[0];
+            float minPressure = AverageMinMax[1];
+            float maxPressure = AverageMinMax[2];
             
             ChunkMetrics metrics = new ChunkMetrics()
             {
                 ChunkId = chunkId,
                 PeakPressureIndex =  peakPressure, 
                 ContactAreaPercent = contactAreaPercent,
-                AveragePressure =  AveragePressure,
+                AveragePressure =  averagePressure,
+                MinPressure = minPressure,
+                MaxPressure = maxPressure
             };
 
             return metrics; 
         }
-
-        private float CalculateAveragePressure(IEnumerable<string> chunkLines)
+        
+        private List<float> CalculateAverageAndMinMaxPressure(IEnumerable<string> chunkLines)
         {
             float totalVals = 1024;
             float total = 0;
+            float minVal = 256;
+            float maxVal = 0;
 
             foreach (var line in chunkLines)
             {
@@ -85,16 +92,26 @@ namespace GrapheneTrace.Services
                     if (int.TryParse(val, out var value))
                     {
                         total +=  value;
+
+                        if (value > maxVal)
+                        {
+                            maxVal = value;
+                        } else if (value < minVal && value != 0)
+                        {
+                            minVal = value;
+                        }
                     }
                 }
             }
 
             if (total == 0)
             {
-                return 0.0f;
+                return new List<float> { 0.0f, 0.0f, 0.0f }; 
             }
             
-            return (total/totalVals);
+            var average = (total / totalVals);
+            return new List<float> { average, minVal, maxVal };
+
         }
 
         private float CalculatePeakPressure(IEnumerable<string> chunkLines)

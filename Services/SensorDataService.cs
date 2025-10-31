@@ -30,6 +30,8 @@ namespace GrapheneTrace.Services
                     PeakPressure = c.Metrics?.PeakPressureIndex ?? 0,
                     ContactArea = c.Metrics?.ContactAreaPercent ?? 0,
                     AveragePressure = c.Metrics?.AveragePressure ?? 0,
+                    MaxPressure = c.Metrics?.MaxPressure ?? 0,
+                    MinPressure = c.Metrics?.MinPressure ?? 0
                 })
                 .ToList();
         }

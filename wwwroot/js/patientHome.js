@@ -8,6 +8,8 @@ export function initHeatmap(allGridsData, allMetricsData) {
     const chunkIndicator = document.getElementById('chunkIndicator');
     const peakPressureEl = document.getElementById('peakPressure');
     const averagePressureEl = document.getElementById('averagePressure');
+    const minPressureEl = document.getElementById('minPressure');
+    const maxPressureEl = document.getElementById('maxPressure');
     const contactAreaEl = document.getElementById('contactArea');
 
     const cellSize = 10;
@@ -36,6 +38,8 @@ export function initHeatmap(allGridsData, allMetricsData) {
             peakPressureEl.textContent = metrics.PeakPressure.toFixed(2);
             contactAreaEl.textContent = metrics.ContactArea.toFixed(2);
             averagePressureEl.textContent = metrics.AveragePressure.toFixed(2);
+            minPressureEl.textContent = metrics.MinPressure.toFixed(2);
+            maxPressureEl.textContent = metrics.MaxPressure.toFixed(2);
         }
     }
 
