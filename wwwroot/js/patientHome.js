@@ -13,7 +13,7 @@ export function initHeatmap(allGridsData, allMetricsData) {
     const contactAreaEl = document.getElementById('contactArea');
     const commentsChunkIdEl = document.getElementById('commentsChunkId');
 
-    const cellSize = 10;
+    const cellSize = 20;
     let isPlaying = false;
     let currentChunkIndex = 0;
     let playInterval;

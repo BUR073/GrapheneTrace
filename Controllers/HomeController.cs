@@ -121,13 +121,22 @@ namespace GrapheneTrace.Controllers
 
             var recentSensorData = await _sensorDataService.GetRecentSensorDataAsync(user.Id, dataId);
             await _heatmapService.ProcessMissingMetricsAsync(recentSensorData);
+            
+            var feedback = await _context.Feedback
+                .Include(f => f.HeatmapChunk)
+                .Include(f => f.Replies)
+                .Where(f => f.UserId == user.Id)
+                .OrderByDescending(f => f.TimeStamp)
+                .ToListAsync();
+
 
             var viewModel = new PatientHomeViewModel
             {
                 AllHeatmapGrids = _sensorDataService.BuildHeatmapGrids(recentSensorData),
                 HeatmapTimestamp = recentSensorData?.Timestamp,
                 AllMetrics = _sensorDataService.GetMetrics(recentSensorData),
-                AllSensorData = await _sensorDataService.GetAllSensorDataAsync(user.Id)
+                AllSensorData = await _sensorDataService.GetAllSensorDataAsync(user.Id),
+                AllFeedback = feedback
             };
 
             return View(viewModel);

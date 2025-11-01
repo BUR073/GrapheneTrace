@@ -32,13 +32,16 @@ namespace GrapheneTrace.Controllers
         [HttpPost]
         public async Task<IActionResult> AddFeedback(NewFeedbackModel model)
         {
-            if (!ModelState.IsValid) return BadRequest();
+            if (!ModelState.IsValid)
+                return BadRequest();
 
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
+            if (user == null)
+                return Unauthorized();
 
             var chunk = await _context.HeatmapChunk.FindAsync(model.ChunkId);
-            if (chunk == null) return NotFound("Chunk not found");
+            if (chunk == null)
+                return NotFound("Chunk not found");
 
             var feedback = new Feedback
             {
@@ -51,7 +54,11 @@ namespace GrapheneTrace.Controllers
             _context.Feedback.Add(feedback);
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Feedback saved!" });
+            // Optionally: TempData for a success message
+            TempData["FeedbackMessage"] = "Your feedback has been submitted successfully.";
+
+            return RedirectToAction("PatientHome", "Home", new { dataId = chunk.HeatmapId });
+
         }
     }
 
