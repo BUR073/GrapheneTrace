@@ -30,6 +30,26 @@ namespace GrapheneTrace.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> DeleteFeedback(int feedbackId)
+        {
+            var feedback = await _context.Feedback
+                .Include(f => f.HeatmapChunk)
+                .FirstOrDefaultAsync(f => f.FeedbackId == feedbackId);
+
+            if (feedback != null)
+            {
+                int? dataId = feedback.HeatmapChunk?.ChunkId;
+
+                _context.Feedback.Remove(feedback);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("PatientHome", "Home", new { dataId });
+            }
+            
+            return RedirectToAction("PatientHome", "Home");
+        }
+
+        [HttpPost]
         public async Task<IActionResult> AddFeedback(NewFeedbackModel model)
         {
             if (!ModelState.IsValid)
@@ -53,9 +73,6 @@ namespace GrapheneTrace.Controllers
 
             _context.Feedback.Add(feedback);
             await _context.SaveChangesAsync();
-
-            // Optionally: TempData for a success message
-            TempData["FeedbackMessage"] = "Your feedback has been submitted successfully.";
 
             return RedirectToAction("PatientHome", "Home", new { dataId = chunk.HeatmapId });
 

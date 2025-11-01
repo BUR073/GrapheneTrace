@@ -1,9 +1,16 @@
 @model GrapheneTrace.Models.Patient.PatientHomeViewModel
 @using System.Text.Json
+@using Microsoft.AspNetCore.Identity
+@using GrapheneTrace.Areas.Identity.Data
+@inject UserManager<ApplicationUser> UserManager
 
 @{
     ViewData["Title"] = "Patient Home";
+
+    var currentUserIdString = UserManager.GetUserId(User);
+    int.TryParse(currentUserIdString, out var currentUserId);
 }
+
 
 <div class="container-fluid px-5">
     <div class="row align-items-start">
@@ -130,6 +137,14 @@
                                         <div class="text-muted small mt-1">
                                             Related to chunk: <strong>@f.HeatmapChunk.ChunkId</strong>
                                         </div>
+                                    }
+              
+                                    @if (f.UserId == currentUserId)
+                                    {
+                                        <form asp-controller="Feedback" asp-action="DeleteFeedback" method="post" class="mt-2">
+                                            <input type="hidden" name="feedbackId" value="@f.FeedbackId" />
+                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                        </form>
                                     }
                                 </li>
                             }
