@@ -63,7 +63,7 @@ namespace GrapheneTrace.Data
                 .HasMany(hc => hc.Feedback)
                 .WithOne(f => f.HeatmapChunk)
                 .HasForeignKey(f => f.ChunkId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
                 
            // Feedback -> User (1..1 | 0..*)
            builder.Entity<ApplicationUser>()
