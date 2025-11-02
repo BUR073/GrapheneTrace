@@ -20,29 +20,22 @@ namespace GrapheneTrace.Controllers
 {
     public class FeedbackController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IFeedbackService _feedbackService;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public FeedbackController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public FeedbackController(IFeedbackService feedbackService, UserManager<ApplicationUser> userManager)
         {
-            _context = context;
+            _feedbackService = feedbackService;
             _userManager = userManager;
         }
 
         [HttpPost]
         public async Task<IActionResult> DeleteFeedback(int feedbackId)
         {
-            var feedback = await _context.Feedback
-                .Include(f => f.HeatmapChunk)
-                .FirstOrDefaultAsync(f => f.FeedbackId == feedbackId);
+            int? dataId = await _feedbackService.DeleteFeedback(feedbackId);
 
-            if (feedback != null)
+            if (dataId != null)
             {
-                int? dataId = feedback.HeatmapChunk?.ChunkId;
-
-                _context.Feedback.Remove(feedback);
-                await _context.SaveChangesAsync();
-
                 return RedirectToAction("PatientHome", "Home", new { dataId });
             }
             
@@ -54,27 +47,16 @@ namespace GrapheneTrace.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest();
-
+            
             var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-                return Unauthorized();
+            
+            int? heatmap = await _feedbackService.AddFeedback(model, user.Id);
 
-            var chunk = await _context.HeatmapChunk.FindAsync(model.ChunkId);
-            if (chunk == null)
-                return NotFound("Chunk not found");
-
-            var feedback = new Feedback
+            if (heatmap != null)
             {
-                UserId = user.Id,
-                ChunkId = chunk.ChunkId,
-                Comment = model.Text,
-                TimeStamp = DateTime.UtcNow
-            };
-
-            _context.Feedback.Add(feedback);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("PatientHome", "Home", new { dataId = chunk.HeatmapId });
+                return RedirectToAction("PatientHome", "Home", new { dataId = heatmap });
+            }
+            return RedirectToAction("PatientHome", "Home");
 
         }
     }

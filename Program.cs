@@ -28,6 +28,7 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddScoped<IHeatmapService, HeatmapService>();
 builder.Services.AddScoped<ISensorDataService, SensorDataService>();
+builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 
 var app = builder.Build();
 
