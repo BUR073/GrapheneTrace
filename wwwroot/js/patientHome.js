@@ -52,8 +52,8 @@ export function initHeatmap(allGridsData, allMetricsData) {
 
     function updateUI(chunkIndex) {
         slider.value = chunkIndex;
-        commentsChunkIdEl.value = chunkIndex + 1;
         chunkIndicator.textContent = `Chunk ${chunkIndex + 1} / ${allGridsData.length}`;
+        commentsChunkIdEl.value = chunkIndex + 1;
     }
 
     function playNextChunk() {
