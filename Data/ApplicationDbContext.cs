@@ -70,7 +70,7 @@ namespace GrapheneTrace.Data
                .HasMany(u => u.Feedback)    
                .WithOne(f => f.User)         
                .HasForeignKey(f => f.UserId)    
-               .OnDelete(DeleteBehavior.Restrict);
+               .OnDelete(DeleteBehavior.Cascade);
            
            // Feedback -> FeedbackReply (1..* | *..1)
            builder.Entity<Feedback>()
@@ -85,21 +85,21 @@ namespace GrapheneTrace.Data
                .HasOne(fr => fr.User)                 
                .WithMany(u => u.FeedbackReplies)     
                .HasForeignKey(fr => fr.UserId)       
-               .OnDelete(DeleteBehavior.Restrict);   
+               .OnDelete(DeleteBehavior.Cascade);   
            
            // One Patient can have many PatientClinician links
            builder.Entity<ApplicationUser>()
                .HasMany(u => u.ClinicianLinks)  
                .WithOne(pc => pc.Patient)     
                .HasForeignKey(pc => pc.PatientId)  
-               .OnDelete(DeleteBehavior.Restrict); 
+               .OnDelete(DeleteBehavior.Cascade); 
            
             // One Clinician can have many PatientClinician links
            builder.Entity<ApplicationUser>()
                .HasMany(u => u.PatientLinks)    
                .WithOne(pc => pc.Clinician)  
                .HasForeignKey(pc => pc.ClinicianId) 
-               .OnDelete(DeleteBehavior.Restrict); 
+               .OnDelete(DeleteBehavior.Cascade); 
            
         }       
     }

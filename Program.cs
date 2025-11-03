@@ -29,6 +29,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddScoped<IHeatmapService, HeatmapService>();
 builder.Services.AddScoped<ISensorDataService, SensorDataService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 var app = builder.Build();
 
@@ -43,9 +44,9 @@ using (var scope = app.Services.CreateScope())
     
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>(); 
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
-       var context = services.GetRequiredService<ApplicationDbContext>();
+        var context = services.GetRequiredService<ApplicationDbContext>();
 
-        await ContextSeed.SeedRolesAsync(roleManager);
+        await ContextSeed.SeedRolesAsync(roleManager); 
         await ContextSeed.SeedAdminAsync(userManager, logger); 
        await ContextSeed.SeedPatientsAsync(userManager, logger);
        await ContextSeed.SeedCliniciansAsync(userManager, logger);
