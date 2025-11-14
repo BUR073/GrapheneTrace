@@ -43,7 +43,8 @@ namespace GrapheneTrace.Services
             {
                 var metrics = CalculateMetrics(
                     chunk.ChunkData.Split('\n'), 
-                    chunk.ChunkId
+                    chunk.ChunkId,
+                    sensorData.DataId
                 );
                 newMetricsList.Add(metrics);
             }
@@ -52,11 +53,11 @@ namespace GrapheneTrace.Services
             await _context.SaveChangesAsync();
         }
 
-        private ChunkMetrics CalculateMetrics(IEnumerable<string> chunkLines, int chunkId)
+        private ChunkMetrics CalculateMetrics(IEnumerable<string> chunkLines, int chunkId, int DataId)
         {
             float peakPressure = CalculatePeakPressure(chunkLines);
             float contactAreaPercent =  CalculateContactAreaPercent(chunkLines);
-            List<float> AverageMinMax = CalculateAverageAndMinMaxPressure(chunkLines);
+            List<float> AverageMinMax = CalculateAverageAndMinMaxPressure(chunkLines, chunkId, DataId);
             float averagePressure = AverageMinMax[0];
             float minPressure = AverageMinMax[1];
             float maxPressure = AverageMinMax[2];
@@ -73,8 +74,23 @@ namespace GrapheneTrace.Services
 
             return metrics; 
         }
+
+        private async Task createAlert(int value, int chunkId, int DataId)
+        { 
+            Alert alert = new Alert()
+            {
+                DataId = DataId, 
+                AlertText = $"Abnormally high pressure: {value} ChunkId: {chunkId}";
+                TimeStamp = DateTime.UtcNow,
+                Updateat = DateTime.UtcNow, 
+            }
+                
+            await _context.ChunkMetrics.AddRangeAsync(alert);
+            await _context.SaveChangesAsync();
+        }
         
-        private List<float> CalculateAverageAndMinMaxPressure(IEnumerable<string> chunkLines)
+
+        private List<float> CalculateAverageAndMinMaxPressure(IEnumerable<string> chunkLines, int chunkId, int DataId)
         {
             float totalVals = 1024;
             float total = 0;
@@ -92,6 +108,10 @@ namespace GrapheneTrace.Services
                     if (int.TryParse(val, out var value))
                     {
                         total +=  value;
+                        if (value > 255)
+                        {
+                            createAlert(value, chunkId, DataId);
+                        }
 
                         if (value > maxVal)
                         {
@@ -151,4 +171,5 @@ namespace GrapheneTrace.Services
             return contactArea;
         }
     }
+    
 }
