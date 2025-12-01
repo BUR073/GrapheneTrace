@@ -63,7 +63,7 @@ namespace GrapheneTrace.Controllers
                 {
                     await _userManager.AddToRoleAsync(user, model.SelectedRole);
 
-                    return RedirectToAction("AdminHome", "Home");
+                    return RedirectToAction(nameof(Pages.AdminHome), "Home");
                 }
 
                 foreach (var error in result.Errors)
@@ -135,7 +135,7 @@ namespace GrapheneTrace.Controllers
             
             if (await _adminService.UpdateUser(model))
             {
-                return RedirectToAction("AdminHome", "Home");
+                return RedirectToAction(nameof(Pages.AdminHome), "Home");
             }
 
             ModelState.AddModelError(string.Empty, "Failed to update user. Please check details and try again.");
@@ -169,7 +169,7 @@ namespace GrapheneTrace.Controllers
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
             if (user == null) {
-                return RedirectToAction("AdminHome", "Home");
+                return RedirectToAction(nameof(Pages.AdminHome), "Home");
             }
             var currentAdminIdString = _userManager.GetUserId(User);
             
@@ -178,13 +178,13 @@ namespace GrapheneTrace.Controllers
                 if (user.Id == currentAdminId)
                 {
                     TempData["ErrorMessage"] = "Error: You cannot delete your own administrator account.";
-                    return RedirectToAction("AdminHome", "Home");
+                    return RedirectToAction(nameof(Pages.AdminHome), "Home");
                 }
             }
 
             await _userManager.DeleteAsync(user);
 
-            return RedirectToAction("AdminHome", "Home");
+            return RedirectToAction(nameof(Pages.AdminHome), "Home");
         }
 
         [HttpGet]
@@ -201,16 +201,12 @@ namespace GrapheneTrace.Controllers
             {
                 PrimaryUserId = patient.Id,
                 PrimaryUserName = patient.Name,
-                PrimaryUserRole = "Patient",
-                
+                PrimaryUserRole = nameof(UserType.Patient),
                 AssignedLinks = _adminService.GetLinkSelectionList(allClinicians, alreadyLinkedClinicianIds, LinkFilter.Assigned).ToList(),
-
                 AvailableLinks = _adminService.GetLinkSelectionList(allClinicians, alreadyLinkedClinicianIds, LinkFilter.Available).ToList(),
-
-
                 SelectedLinkIds = alreadyLinkedClinicianIds
             };
-            return View("ManageLinks", model);
+            return View(nameof(Pages.ManageLinks), model);
         }
 
         [HttpGet]
@@ -227,12 +223,12 @@ namespace GrapheneTrace.Controllers
             {
                 PrimaryUserId = clinician.Id,
                 PrimaryUserName = clinician.Name,
-                PrimaryUserRole = "Clinician",
+                PrimaryUserRole = nameof(UserType.Clinician),
                 AssignedLinks = _adminService.GetLinkSelectionList(allPatients, alreadyLinkedPatientIds, LinkFilter.Assigned).ToList(),
                 AvailableLinks = _adminService.GetLinkSelectionList(allPatients, alreadyLinkedPatientIds, LinkFilter.Available).ToList(),
                 SelectedLinkIds = alreadyLinkedPatientIds
             };
-            return View("ManageLinks", model);
+            return View(nameof(Pages.ManageLinks), model);
         }
 
         [HttpPost]
@@ -244,7 +240,7 @@ namespace GrapheneTrace.Controllers
                 selectedLinkIds: model.SelectedLinkIds,
                 isManagingPatient: true);
 
-            return RedirectToAction("AdminHome", "Home");
+            return RedirectToAction(nameof(Pages.AdminHome), "Home");
         }
 
 
@@ -257,15 +253,12 @@ namespace GrapheneTrace.Controllers
                 selectedLinkIds: model.SelectedLinkIds,
                 isManagingPatient: false);
 
-            return RedirectToAction("AdminHome", "Home");
+            return RedirectToAction(nameof(Pages.AdminHome), "Home");
         }
         
         private async Task UpdatePatientClinicianLinksAsync(int primaryUserId, List<int> selectedLinkIds, bool isManagingPatient)
         {
-            var currentlyLinkedIds = await _adminService.GetAlreadyLinkedUsers(
-                primaryUserId,
-                isManagingPatient ? UserType.Clinician : UserType.Patient
-            );
+            var currentlyLinkedIds = await _adminService.GetAlreadyLinkedUsers(primaryUserId, isManagingPatient ? UserType.Clinician : UserType.Patient);
 
             var idsToAdd = selectedLinkIds.Except(currentlyLinkedIds).ToList();
             var idsToRemove = currentlyLinkedIds.Except(selectedLinkIds).ToList();

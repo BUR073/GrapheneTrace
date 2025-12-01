@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using GrapheneTrace.Models;
-using System.Threading.Tasks;
 using GrapheneTrace.Areas.Identity.Data;
+using GrapheneTrace.Enums;
 
 namespace GrapheneTrace.Controllers
 {
@@ -34,7 +34,7 @@ namespace GrapheneTrace.Controllers
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction(nameof(Pages.Index), "Home");
                 }
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             }
@@ -47,7 +47,7 @@ namespace GrapheneTrace.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction(nameof(Pages.Index), "Home");
         }
     }
 }

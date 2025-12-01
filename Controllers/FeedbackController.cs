@@ -10,6 +10,7 @@ using GrapheneTrace.Areas.Identity.Data;
 using GrapheneTrace.Data;
 using System.Collections.Generic; 
 using System.Linq;
+using GrapheneTrace.Enums;
 using GrapheneTrace.Models.Database;
 using GrapheneTrace.Models.Patient;
 using GrapheneTrace.Services;
@@ -36,10 +37,10 @@ namespace GrapheneTrace.Controllers
 
             if (dataId != null)
             {
-                return RedirectToAction("PatientHome", "Home", new { dataId });
+                return RedirectToAction(nameof(Pages.PatientHome), "Home", new { dataId });
             }
             
-            return RedirectToAction("PatientHome", "Home");
+            return RedirectToAction(nameof(Pages.PatientHome), "Home");
         }
 
         [HttpPost]
@@ -50,13 +51,13 @@ namespace GrapheneTrace.Controllers
             
             var user = await _userManager.GetUserAsync(User);
             
-            int? heatmap = await _feedbackService.AddFeedback(model, user.Id);
+            var heatmap = await _feedbackService.AddFeedback(model, user.Id);
 
             if (heatmap != null)
             {
-                return RedirectToAction("PatientHome", "Home", new { dataId = heatmap });
+                return RedirectToAction(nameof(Pages.PatientHome), "Home", new { dataId = heatmap });
             }
-            return RedirectToAction("PatientHome", "Home");
+            return RedirectToAction(nameof(Pages.PatientHome), "Home");
 
         }
     }

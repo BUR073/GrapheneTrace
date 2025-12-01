@@ -22,16 +22,19 @@ namespace GrapheneTrace.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IHeatmapService _heatmapService;
         private readonly ISensorDataService _sensorDataService;
+        private readonly IAdminService _adminService;
         public HomeController(
             UserManager<ApplicationUser> userManager, 
             ApplicationDbContext context, 
             IHeatmapService heatmapService,
-            ISensorDataService sensorDataService)
+            ISensorDataService sensorDataService,
+            IAdminService adminService)
         {
             _userManager = userManager;
             _context = context;
             _heatmapService = heatmapService; 
             _sensorDataService = sensorDataService;
+            _adminService = adminService;
         }
         
         public async Task<IActionResult> Index()
@@ -43,14 +46,14 @@ namespace GrapheneTrace.Controllers
             }
             
             if (await _userManager.IsInRoleAsync(user, nameof(UserType.Admin))) {
-                return RedirectToAction("AdminHome");
+                return RedirectToAction(nameof(Pages.AdminHome));
             }
             
             if (await _userManager.IsInRoleAsync(user, nameof(UserType.Clinician))) {
-                return RedirectToAction("ClinicianHome");
+                return RedirectToAction(nameof(Pages.ClinicianHome));
             }
         
-            return RedirectToAction("PatientHome");
+            return RedirectToAction(nameof(Pages.PatientHome));
             
         }
             
@@ -60,42 +63,9 @@ namespace GrapheneTrace.Controllers
         {
             ViewData["CurrentFilter"] = searchString;
             
-            var userViewModelList = await _userManager.Users
-                .Select(user => new UserViewModel
-                {
-                    Id = user.Id,
-                    Email = user.Email ?? "",
-                    Name = user.Name ?? string.Empty,
-                    DateOfBirth = user.DateOfBirth,
-                    
-                    Roles = (from ur in _context.UserRoles
-                             join r in _context.Roles on ur.RoleId equals r.Id
-                             where ur.UserId == user.Id
-                             select r.Name).ToList(),
-                             
-                    PatientLinkCount = _context.PatientClinician
-                        .Count(pc => pc.PatientId == user.Id),
-                    
-                    ClinicianLinkCount = _context.PatientClinician
-                        .Count(pc => pc.ClinicianId == user.Id)
-                })
-                .ToListAsync();
-            
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                var upperSearchString = searchString.ToUpper();
-
-                userViewModelList = userViewModelList.Where(u => 
-                    u.Email.ToUpper().Contains(upperSearchString) ||
-                    u.Id.ToString() == searchString ||
-                    (u.Name.ToUpper().Contains(upperSearchString)) ||
-                    u.Roles.Any(role => role.ToUpper().Contains(upperSearchString))
-                ).ToList();
-            }
-
             var viewModel = new AdminHomeViewModel
             {
-                Users = userViewModelList
+                Users = await _adminService.GetAdminDashboardUsersAsync(searchString)
             };
 
             return View(viewModel);
@@ -108,7 +78,7 @@ namespace GrapheneTrace.Controllers
             return View();
         }
 
-        [Authorize(Roles = nameof(UserType.Clinician))]
+        [Authorize(Roles = nameof(UserType.Patient))]
         public async Task<IActionResult> PatientHome(int? dataId)
         {
             var user = await _userManager.GetUserAsync(User);
