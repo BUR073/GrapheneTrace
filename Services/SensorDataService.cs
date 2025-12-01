@@ -21,7 +21,7 @@ namespace GrapheneTrace.Services
         public List<ChunkMetricModel> GetMetrics(SensorData sensorData)
         {
             if (sensorData?.Heatmap?.Chunks == null)
-                return new List<ChunkMetricModel>();
+                return [];
 
             return sensorData.Heatmap.Chunks
                 .OrderBy(c => c.ChunkNumber)

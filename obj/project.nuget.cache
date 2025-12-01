@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "QvJgSZkimUI=",
+  "dgSpecHash": "8NCsgLDnzPs=",
   "success": true,
   "projectFilePath": "/Users/henryburbridge/Desktop/GrapheneTrace/GrapheneTrace.csproj",
   "expectedPackageFiles": [
@@ -98,6 +98,7 @@
     "/Users/henryburbridge/.nuget/packages/microsoft.entityframeworkcore.abstractions/9.0.9/microsoft.entityframeworkcore.abstractions.9.0.9.nupkg.sha512",
     "/Users/henryburbridge/.nuget/packages/microsoft.entityframeworkcore.analyzers/9.0.9/microsoft.entityframeworkcore.analyzers.9.0.9.nupkg.sha512",
     "/Users/henryburbridge/.nuget/packages/microsoft.entityframeworkcore.design/9.0.9/microsoft.entityframeworkcore.design.9.0.9.nupkg.sha512",
+    "/Users/henryburbridge/.nuget/packages/microsoft.entityframeworkcore.inmemory/9.0.0/microsoft.entityframeworkcore.inmemory.9.0.0.nupkg.sha512",
     "/Users/henryburbridge/.nuget/packages/microsoft.entityframeworkcore.relational/9.0.9/microsoft.entityframeworkcore.relational.9.0.9.nupkg.sha512",
     "/Users/henryburbridge/.nuget/packages/microsoft.entityframeworkcore.sqlite/9.0.9/microsoft.entityframeworkcore.sqlite.9.0.9.nupkg.sha512",
     "/Users/henryburbridge/.nuget/packages/microsoft.entityframeworkcore.sqlite.core/9.0.9/microsoft.entityframeworkcore.sqlite.core.9.0.9.nupkg.sha512",
@@ -181,9 +182,9 @@
     "/Users/henryburbridge/.nuget/packages/xunit.core/2.9.3/xunit.core.2.9.3.nupkg.sha512",
     "/Users/henryburbridge/.nuget/packages/xunit.extensibility.core/2.9.3/xunit.extensibility.core.2.9.3.nupkg.sha512",
     "/Users/henryburbridge/.nuget/packages/xunit.extensibility.execution/2.9.3/xunit.extensibility.execution.2.9.3.nupkg.sha512",
-    "/Users/henryburbridge/.nuget/packages/microsoft.netcore.app.ref/9.0.11/microsoft.netcore.app.ref.9.0.11.nupkg.sha512",
     "/Users/henryburbridge/.nuget/packages/microsoft.aspnetcore.app.ref/9.0.11/microsoft.aspnetcore.app.ref.9.0.11.nupkg.sha512",
-    "/Users/henryburbridge/.nuget/packages/microsoft.netcore.app.host.osx-arm64/9.0.11/microsoft.netcore.app.host.osx-arm64.9.0.11.nupkg.sha512"
+    "/Users/henryburbridge/.nuget/packages/microsoft.netcore.app.host.osx-arm64/9.0.11/microsoft.netcore.app.host.osx-arm64.9.0.11.nupkg.sha512",
+    "/Users/henryburbridge/.nuget/packages/microsoft.netcore.app.ref/9.0.11/microsoft.netcore.app.ref.9.0.11.nupkg.sha512"
   ],
   "logs": []
 }

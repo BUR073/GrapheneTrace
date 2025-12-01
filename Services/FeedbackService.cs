@@ -1,26 +1,10 @@
 using GrapheneTrace.Models.Feedback;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks; 
 using GrapheneTrace.Data;
 using GrapheneTrace.Models.Database; 
-using GrapheneTrace.Services;
-using GrapheneTrace.Models;
 using GrapheneTrace.Services.Interfaces;
-
-
-
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
-using System.Threading.Tasks;
 using GrapheneTrace.Areas.Identity.Data; 
-using GrapheneTrace.Data;
-using System.Collections.Generic; 
-
 
 
 namespace GrapheneTrace.Services
@@ -44,18 +28,17 @@ namespace GrapheneTrace.Services
                 .Include(f => f.HeatmapChunk)
                 .FirstOrDefaultAsync(f => f.FeedbackId == feedbackId);
 
-            if (feedback != null)
+            if (feedback == null)
             {
-                int? dataId = feedback.HeatmapChunk?.ChunkId;
-
-                _context.Feedback.Remove(feedback);
-                await _context.SaveChangesAsync();
-                
-                return dataId;
-
+                return null;
             }
+            var dataId = feedback.HeatmapChunk?.ChunkId;
 
-            return null; 
+            _context.Feedback.Remove(feedback);
+            await _context.SaveChangesAsync();
+                
+            return dataId;
+            
         }
 
         public async Task<int?> AddFeedback(NewFeedbackModel model, int user)

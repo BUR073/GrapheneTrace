@@ -30,10 +30,10 @@ namespace GrapheneTrace.Services
             }
 
             var chunksToProcess = sensorData.Heatmap.Chunks
-                .Where(c => c.Metrics == null) // Find chunks without metrics
+                .Where(c => c.Metrics == null) 
                 .ToList();
 
-            if (!chunksToProcess.Any())
+            if (chunksToProcess.Count == 0)
             {
                 return; 
             }
@@ -55,12 +55,12 @@ namespace GrapheneTrace.Services
 
         private ChunkMetrics CalculateMetrics(IEnumerable<string> chunkLines, int chunkId, int DataId)
         {
-            float peakPressure = CalculatePeakPressure(chunkLines);
-            float contactAreaPercent =  CalculateContactAreaPercent(chunkLines);
-            List<float> AverageMinMax = CalculateAverageAndMinMaxPressure(chunkLines, chunkId, DataId);
-            float averagePressure = AverageMinMax[0];
-            float minPressure = AverageMinMax[1];
-            float maxPressure = AverageMinMax[2];
+            var peakPressure = CalculatePeakPressure(chunkLines);
+            var contactAreaPercent =  CalculateContactAreaPercent(chunkLines);
+            var averageMinMax = CalculateAverageAndMinMaxPressure(chunkLines, chunkId, DataId);
+            var averagePressure = averageMinMax[0];
+            var minPressure = averageMinMax[1];
+            var maxPressure = averageMinMax[2];
             
             ChunkMetrics metrics = new ChunkMetrics()
             {
@@ -75,9 +75,9 @@ namespace GrapheneTrace.Services
             return metrics; 
         }
 
-        private void createAlert(int value, int chunkId, int DataId)
+        private void CreateAlert(int value, int chunkId, int DataId)
         {
-            Alert alert = new Alert()
+            var alert = new Alert()
             {
                 DataId = DataId,
                 SensorData = null!, 
@@ -91,7 +91,7 @@ namespace GrapheneTrace.Services
 
         private List<float> CalculateAverageAndMinMaxPressure(IEnumerable<string> chunkLines, int chunkId, int DataId)
         {
-            float totalVals = 1024;
+            const float totalVals = 1024;
             float total = 0;
             float minVal = 256;
             float maxVal = 0;
@@ -104,32 +104,31 @@ namespace GrapheneTrace.Services
 
                 foreach (var val in lineSplit)
                 {
-                    if (int.TryParse(val, out var value))
+                    if (!int.TryParse(val, out var value)) continue;
+                    
+                    total +=  value;
+                    if (value > 255)
                     {
-                        total +=  value;
-                        if (value > 255)
-                        {
-                            createAlert(value, chunkId, DataId);
-                        }
+                        CreateAlert(value, chunkId, DataId);
+                    }
 
-                        if (value > maxVal)
-                        {
-                            maxVal = value;
-                        } else if (value < minVal && value != 0)
-                        {
-                            minVal = value;
-                        }
+                    if (value > maxVal)
+                    {
+                        maxVal = value;
+                    } else if (value < minVal && value != 0)
+                    {
+                        minVal = value;
                     }
                 }
             }
 
             if (total == 0)
             {
-                return new List<float> { 0.0f, 0.0f, 0.0f }; 
+                return [0.0f, 0.0f, 0.0f]; 
             }
             
             var average = (total / totalVals);
-            return new List<float> { average, minVal, maxVal };
+            return [average, minVal, maxVal];
 
         }
 
@@ -141,8 +140,8 @@ namespace GrapheneTrace.Services
 
         private float CalculateContactAreaPercent(IEnumerable<string> chunkLines)
         {
-            float totalVals = 1024;
-            float NonZeroVals = 0;
+            const float totalVals = 1024;
+            float nonZeroVals = 0;
             
             foreach (var line in chunkLines)
             {
@@ -151,22 +150,20 @@ namespace GrapheneTrace.Services
                 var lineSplit = line.Split(',');
                 foreach (var val in lineSplit)
                 {
-                    if (int.TryParse(val, out int value))
+                    if (!int.TryParse(val, out var value)) continue;
+                    if (value > 0)
                     {
-                        if (value > 0)
-                        {
-                            NonZeroVals += 1;
-                        }
+                        nonZeroVals += 1;
                     }
                 }
             }
             
-            if (NonZeroVals == 0)
+            if (nonZeroVals == 0)
             {
                 return 0.0f;
             }
             
-            float contactArea = (NonZeroVals / totalVals) * 100;
+            var contactArea = (nonZeroVals / totalVals) * 100;
             return contactArea;
         }
     }

@@ -22,18 +22,13 @@ namespace GrapheneTrace.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole<int>> _roleManager;
-        private readonly ApplicationDbContext _context;
         private readonly IAdminService _adminService;
 
 
-        public AdminController(UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole<int>> roleManager,
-            ApplicationDbContext context,
-            IAdminService adminService)
+        public AdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<int>> roleManager, IAdminService adminService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
-            _context = context;
             _adminService = adminService;
         }
 
@@ -129,32 +124,30 @@ namespace GrapheneTrace.Controllers
 
             var currentAdminIdString = _userManager.GetUserId(User);
 
-            if (int.TryParse(currentAdminIdString, out int currentAdminId))
+            if (int.TryParse(currentAdminIdString, out var currentAdminId))
             {
                 if (model.Id == currentAdminId && !model.SelectedRoles.Contains("Admin"))
                 {
                     ModelState.AddModelError(string.Empty, "Error: You cannot remove your own Administrator role.");
                     model.Roles = await _roleManager.Roles
-                        .Select(r => r.Name)
-                        .Where(n => n != null)
+                        .Where(r => r.Name != null) 
+                        .Select(r => r.Name!)        
                         .ToListAsync();
 
                     return View(model);
                 }
             }
-
-            bool userSuccessfullyEdited = await _adminService.UpdateUser(model);
-
-            if (userSuccessfullyEdited)
+            
+            if (await _adminService.UpdateUser(model))
             {
                 return RedirectToAction("AdminHome", "Home");
             }
 
             ModelState.AddModelError(string.Empty, "Failed to update user. Please check details and try again.");
-
+            
             model.Roles = await _roleManager.Roles
-                .Select(r => r.Name)
-                .Where(n => n != null)
+                .Where(r => r.Name != null) 
+                .Select(r => r.Name!)        
                 .ToListAsync();
 
             return View(model);
@@ -180,20 +173,21 @@ namespace GrapheneTrace.Controllers
         public async Task<IActionResult> DeleteUserConfirmed(int id)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user != null)
-            {
-                var currentAdminIdString = _userManager.GetUserId(User);
-                if (int.TryParse(currentAdminIdString, out int currentAdminId))
-                {
-                    if (user.Id == currentAdminId)
-                    {
-                        TempData["ErrorMessage"] = "Error: You cannot delete your own administrator account.";
-                        return RedirectToAction("AdminHome", "Home");
-                    }
-                }
-
-                await _userManager.DeleteAsync(user);
+            if (user == null) {
+                return RedirectToAction("AdminHome", "Home");
             }
+            var currentAdminIdString = _userManager.GetUserId(User);
+            
+            if (int.TryParse(currentAdminIdString, out int currentAdminId))
+            {
+                if (user.Id == currentAdminId)
+                {
+                    TempData["ErrorMessage"] = "Error: You cannot delete your own administrator account.";
+                    return RedirectToAction("AdminHome", "Home");
+                }
+            }
+
+            await _userManager.DeleteAsync(user);
 
             return RedirectToAction("AdminHome", "Home");
         }
@@ -237,14 +231,10 @@ namespace GrapheneTrace.Controllers
             var model = new ManageLinksViewModel
             {
                 PrimaryUserId = clinician.Id,
-                PrimaryUserName = clinician.Name ?? clinician.Email ?? "",
+                PrimaryUserName = clinician.Name,
                 PrimaryUserRole = "Clinician",
-
                 AssignedLinks = (await _adminService.ManageClinicianGetLinks(allPatients, alreadyLinkedPatientIds, "Assigned")).ToList(),
-
-                AvailableLinks =
-                    (await _adminService.ManageClinicianGetLinks(allPatients, alreadyLinkedPatientIds, "Available")).ToList(),
-
+                AvailableLinks = (await _adminService.ManageClinicianGetLinks(allPatients, alreadyLinkedPatientIds, "Available")).ToList(),
                 SelectedLinkIds = alreadyLinkedPatientIds
             };
             return View("ManageLinks", model);
@@ -275,20 +265,15 @@ namespace GrapheneTrace.Controllers
             return RedirectToAction("AdminHome", "Home");
         }
         
-        private async Task UpdatePatientClinicianLinksAsync(int primaryUserId, List<int> selectedLinkIds,
-            bool isManagingPatient)
+        private async Task UpdatePatientClinicianLinksAsync(int primaryUserId, List<int> selectedLinkIds, bool isManagingPatient)
         {
             var currentlyLinkedIds = await _adminService.GetAlreadyLinkedUsers(
                 primaryUserId,
                 isManagingPatient ? "Clinician" : "Patient"
             );
 
-            var newlySelectedIds = selectedLinkIds ?? new List<int>();
-
-            var idsToAdd = newlySelectedIds.Except(currentlyLinkedIds).ToList();
-
-            var idsToRemove = currentlyLinkedIds.Except(newlySelectedIds).ToList();
-
+            var idsToAdd = selectedLinkIds.Except(currentlyLinkedIds).ToList();
+            var idsToRemove = currentlyLinkedIds.Except(selectedLinkIds).ToList();
             await _adminService.UpdatePatientClinicianLinks(idsToAdd, idsToRemove, primaryUserId, isManagingPatient);
         }
     }

@@ -5,14 +5,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using GrapheneTrace.Areas.Identity.Data; 
 using GrapheneTrace.Data;
-using System.Collections.Generic; 
-using System.Linq;
-using GrapheneTrace.Models.Database;
 using GrapheneTrace.Models.Patient;
-using GrapheneTrace.Services;
 using GrapheneTrace.Services.Interfaces;
 
 
@@ -92,7 +87,7 @@ namespace GrapheneTrace.Controllers
                 userViewModelList = userViewModelList.Where(u => 
                     u.Email.ToUpper().Contains(upperSearchString) ||
                     u.Id.ToString() == searchString ||
-                    (u.Name != null && u.Name.ToUpper().Contains(upperSearchString)) ||
+                    (u.Name.ToUpper().Contains(upperSearchString)) ||
                     u.Roles.Any(role => role.ToUpper().Contains(upperSearchString))
                 ).ToList();
             }
