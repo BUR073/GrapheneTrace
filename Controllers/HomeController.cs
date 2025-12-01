@@ -9,6 +9,7 @@ using GrapheneTrace.Areas.Identity.Data;
 using GrapheneTrace.Data;
 using GrapheneTrace.Models.Patient;
 using GrapheneTrace.Services.Interfaces;
+using GrapheneTrace.Enums;
 
 
 namespace GrapheneTrace.Controllers
@@ -41,11 +42,11 @@ namespace GrapheneTrace.Controllers
                 return Challenge();
             }
             
-            if (await _userManager.IsInRoleAsync(user, "Admin")) {
+            if (await _userManager.IsInRoleAsync(user, nameof(UserType.Admin))) {
                 return RedirectToAction("AdminHome");
             }
             
-            if (await _userManager.IsInRoleAsync(user, "Clinician")) {
+            if (await _userManager.IsInRoleAsync(user, nameof(UserType.Clinician))) {
                 return RedirectToAction("ClinicianHome");
             }
         
@@ -54,7 +55,7 @@ namespace GrapheneTrace.Controllers
         }
             
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = nameof(UserType.Admin))]
         public async Task<IActionResult> AdminHome(string searchString)
         {
             ViewData["CurrentFilter"] = searchString;
@@ -101,13 +102,13 @@ namespace GrapheneTrace.Controllers
         }
     
 
-        [Authorize(Roles = "Clinician")]
+        [Authorize(Roles = nameof(UserType.Clinician))]
         public IActionResult ClinicianHome()
         {
             return View();
         }
 
-        [Authorize(Roles = "Patient")]
+        [Authorize(Roles = nameof(UserType.Clinician))]
         public async Task<IActionResult> PatientHome(int? dataId)
         {
             var user = await _userManager.GetUserAsync(User);

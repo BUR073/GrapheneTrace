@@ -5,6 +5,7 @@ using GrapheneTrace.Services;
 using GrapheneTrace.Areas.Identity.Data; 
 using GrapheneTrace.Models.Admin;        
 using GrapheneTrace.Data;
+using GrapheneTrace.Enums;
 using GrapheneTrace.Models.Database;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -47,15 +48,15 @@ namespace GrapheneTrace.Tests
             
             await using (var context = GetNewDb(dbName))
             {
-                var service = new AdminService(null!, null!, context);
-                var result = await service.GetAlreadyLinkedUsers(1, "Patient");
+                var service = new AdminService( null!, context);
+                var result = await service.GetAlreadyLinkedUsers(1, UserType.Patient);
                 Assert.Empty(result);
             }
             
             await using (var context = GetNewDb(dbName))
             {
-                var service = new AdminService(null!, null!, context);
-                var result = await service.GetAlreadyLinkedUsers(1, "Clinician");
+                var service = new AdminService(null!, context);
+                var result = await service.GetAlreadyLinkedUsers(1, UserType.Clinician);
                 Assert.Empty(result);
             }
         }
@@ -74,8 +75,8 @@ namespace GrapheneTrace.Tests
 
             await using (var context = GetNewDb(dbName))
             {
-                var service = new AdminService(null!, null!, context);
-                var result = await service.GetAlreadyLinkedUsers(1, "Patient");
+                var service = new AdminService(null!, context);
+                var result = await service.GetAlreadyLinkedUsers(1, UserType.Patient);
                 Assert.NotNull(result);
                 Assert.Equal(2, result.Count);
                 Assert.Contains(1, result);
@@ -101,8 +102,8 @@ namespace GrapheneTrace.Tests
 
             await using (var context = GetNewDb(dbName))
             {
-                var service = new AdminService(null!, null!, context);
-                var result = await service.GetAlreadyLinkedUsers(1, "Clinician");
+                var service = new AdminService(null!, context);
+                var result = await service.GetAlreadyLinkedUsers(1, UserType.Clinician);
                 Assert.NotNull(result);
                 Assert.Equal(2, result.Count);
                 Assert.Contains(3, result);
@@ -123,7 +124,7 @@ namespace GrapheneTrace.Tests
             
             await using (var context = GetNewDb(dbName))
             {
-                var service = new AdminService(null!, null!, context); // Replace 'YourService' with your actual class name
+                var service = new AdminService(null!, context); // Replace 'YourService' with your actual class name
             
                 var primaryUserId = 1; 
                 var idsToAdd = new List<int> { 100 };
@@ -154,7 +155,7 @@ namespace GrapheneTrace.Tests
             
             await using (var context = GetNewDb(dbName))
             {
-                var service = new AdminService(null!, null!, context);
+                var service = new AdminService(null!, context);
             
                 var primaryUserId = 50; 
                 var idsToAdd = new List<int> { 5 };
@@ -186,7 +187,7 @@ namespace GrapheneTrace.Tests
 
             await using (var context = GetNewDb(dbName))
             {
-                var service = new AdminService(null!, null!, context);
+                var service = new AdminService(null!, context);
                 await service.UpdatePatientClinicianLinks(new List<int>(), new List<int>(), 1, false);
             }
             
@@ -200,7 +201,7 @@ namespace GrapheneTrace.Tests
         public async Task Update_User_Should_Return_False_When_User_Does_Not_Exist()
         {
             var userManager = MockUserManager();
-            var adminService = new AdminService(userManager.Object, null!, null!);
+            var adminService = new AdminService(userManager.Object, null!);
             var model = new EditUserViewModel { Id = 999 }; 
             
             userManager.Setup(x => x.FindByIdAsync("999"))
@@ -215,7 +216,7 @@ namespace GrapheneTrace.Tests
         public async Task Update_User_Should_Update_Fields_And_Roles()
         {
             var mockUserManager = MockUserManager();
-            var service = new AdminService(mockUserManager.Object, null!, null!);
+            var service = new AdminService(mockUserManager.Object,null!);
             
             var model = new EditUserViewModel
             {
@@ -258,7 +259,7 @@ namespace GrapheneTrace.Tests
         public async Task Update_User_Should_Update_Password_When_New_Password_Provided()
         {
             var mockUserManager = MockUserManager();
-            var service = new AdminService(mockUserManager.Object, null!, null!);
+            var service = new AdminService(mockUserManager.Object,null!);
 
             var model = new EditUserViewModel
             {
@@ -298,7 +299,7 @@ namespace GrapheneTrace.Tests
         public async Task Update_User_Should_Not_Update_Password_if_it_does_not_match_password_confirm()
         {
             var mockUserManager = MockUserManager();
-            var service = new AdminService(mockUserManager.Object, null!, null!);
+            var service = new AdminService(mockUserManager.Object, null!);
 
             var model = new EditUserViewModel
             {
@@ -339,7 +340,7 @@ namespace GrapheneTrace.Tests
         public async Task UpdateUser_Should_Return_false_when_password_to_weak()
         {
             var mockUserManager = MockUserManager();
-            var service = new AdminService(mockUserManager.Object, null!, null!);
+            var service = new AdminService(mockUserManager.Object, null!);
 
             var model = new EditUserViewModel
             {
@@ -363,7 +364,7 @@ namespace GrapheneTrace.Tests
                 .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Too weak" }));
             
             var result = await service.UpdateUser(model);
-            Assert.False(result); // Should fail immediately
+            Assert.False(result); 
             mockUserManager.Verify(x => x.UpdateAsync(existingUser), Times.Never);
         }
     }

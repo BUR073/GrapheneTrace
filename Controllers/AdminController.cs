@@ -3,15 +3,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using GrapheneTrace.Areas.Identity.Data;
-using GrapheneTrace.Data; 
-using GrapheneTrace.Models.Database; 
-using GrapheneTrace.Services;
 using GrapheneTrace.Services.Interfaces;
+using GrapheneTrace.Enums;
 
 namespace GrapheneTrace.Controllers
 {
@@ -200,7 +195,7 @@ namespace GrapheneTrace.Controllers
 
             var allClinicians = await _userManager.GetUsersInRoleAsync("Clinician");
 
-            var alreadyLinkedClinicianIds = await _adminService.GetAlreadyLinkedUsers(id, "Clinician");
+            var alreadyLinkedClinicianIds = await _adminService.GetAlreadyLinkedUsers(id, UserType.Clinician);
 
             var model = new ManageLinksViewModel
             {
@@ -208,9 +203,9 @@ namespace GrapheneTrace.Controllers
                 PrimaryUserName = patient.Name,
                 PrimaryUserRole = "Patient",
                 
-                AssignedLinks = (await _adminService.ManagePatientGetLinks(allClinicians, alreadyLinkedClinicianIds, "Assigned")).ToList(),
+                AssignedLinks = _adminService.GetLinkSelectionList(allClinicians, alreadyLinkedClinicianIds, LinkFilter.Assigned).ToList(),
 
-                AvailableLinks = (await _adminService.ManagePatientGetLinks(allClinicians, alreadyLinkedClinicianIds, "Available")).ToList(),
+                AvailableLinks = _adminService.GetLinkSelectionList(allClinicians, alreadyLinkedClinicianIds, LinkFilter.Available).ToList(),
 
 
                 SelectedLinkIds = alreadyLinkedClinicianIds
@@ -226,15 +221,15 @@ namespace GrapheneTrace.Controllers
 
             var allPatients = await _userManager.GetUsersInRoleAsync("Patient");
 
-            var alreadyLinkedPatientIds = await _adminService.GetAlreadyLinkedUsers(id, "Patient");
+            var alreadyLinkedPatientIds = await _adminService.GetAlreadyLinkedUsers(id, UserType.Patient);
 
             var model = new ManageLinksViewModel
             {
                 PrimaryUserId = clinician.Id,
                 PrimaryUserName = clinician.Name,
                 PrimaryUserRole = "Clinician",
-                AssignedLinks = (await _adminService.ManageClinicianGetLinks(allPatients, alreadyLinkedPatientIds, "Assigned")).ToList(),
-                AvailableLinks = (await _adminService.ManageClinicianGetLinks(allPatients, alreadyLinkedPatientIds, "Available")).ToList(),
+                AssignedLinks = _adminService.GetLinkSelectionList(allPatients, alreadyLinkedPatientIds, LinkFilter.Assigned).ToList(),
+                AvailableLinks = _adminService.GetLinkSelectionList(allPatients, alreadyLinkedPatientIds, LinkFilter.Available).ToList(),
                 SelectedLinkIds = alreadyLinkedPatientIds
             };
             return View("ManageLinks", model);
@@ -269,7 +264,7 @@ namespace GrapheneTrace.Controllers
         {
             var currentlyLinkedIds = await _adminService.GetAlreadyLinkedUsers(
                 primaryUserId,
-                isManagingPatient ? "Clinician" : "Patient"
+                isManagingPatient ? UserType.Clinician : UserType.Patient
             );
 
             var idsToAdd = selectedLinkIds.Except(currentlyLinkedIds).ToList();

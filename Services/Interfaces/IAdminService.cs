@@ -1,9 +1,7 @@
-using System.Collections.Generic;
-using GrapheneTrace.Models.Database;
 using GrapheneTrace.Models.Admin;
 using GrapheneTrace.Areas.Identity.Data;
 using Microsoft.AspNetCore.Mvc.Rendering;
-
+using GrapheneTrace.Enums;
 
 namespace GrapheneTrace.Services.Interfaces
 {
@@ -13,14 +11,9 @@ namespace GrapheneTrace.Services.Interfaces
 
         Task UpdatePatientClinicianLinks(List<int> idsToAdd, List<int> idsToRemove, int primaryUserId,
             bool isManagingPatient);
-
-        Task<List<int>> GetAlreadyLinkedUsers(int Id, string type);
-
-        Task<IList<SelectListItem>> ManagePatientGetLinks(IList<ApplicationUser> allClinicians,
-            List<int> alreadyLinkedClinicianIds, string type);
-
-        Task<IList<SelectListItem>> ManageClinicianGetLinks(IList<ApplicationUser> allPatients,
-            List<int> alreadyLinkedPatientIds, string type);
+        Task<List<int>> GetAlreadyLinkedUsers(int id, UserType type);
+        IList<SelectListItem> GetLinkSelectionList(IList<ApplicationUser> allClinicians,
+            List<int> alreadyLinkedClinicianIds, LinkFilter type);
     }
 }
 
