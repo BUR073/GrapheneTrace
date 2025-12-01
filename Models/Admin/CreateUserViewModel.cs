@@ -25,3 +25,4 @@ namespace GrapheneTrace.Models.Admin
         public IEnumerable<SelectListItem> Roles { get; set; } = new List<SelectListItem>();
     }
 }
+

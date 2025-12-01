@@ -23,3 +23,4 @@ namespace GrapheneTrace.Services.Interfaces
             List<int> alreadyLinkedPatientIds, string type);
     }
 }
+

@@ -16,3 +16,4 @@ namespace GrapheneTrace.Models
         public int ClinicianLinkCount { get; set; }
     }
 }
+

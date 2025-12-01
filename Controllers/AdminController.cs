@@ -225,7 +225,6 @@ namespace GrapheneTrace.Controllers
         }
 
         [HttpGet]
-        [HttpGet]
         public async Task<IActionResult> ManageClinician(int id)
         {
             var clinician = await _userManager.FindByIdAsync(id.ToString());
@@ -263,6 +262,7 @@ namespace GrapheneTrace.Controllers
             return RedirectToAction("AdminHome", "Home");
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ManageClinician(ManageLinksViewModel model)
@@ -274,7 +274,7 @@ namespace GrapheneTrace.Controllers
 
             return RedirectToAction("AdminHome", "Home");
         }
-
+        
         private async Task UpdatePatientClinicianLinksAsync(int primaryUserId, List<int> selectedLinkIds,
             bool isManagingPatient)
         {

@@ -17,3 +17,4 @@ namespace GrapheneTrace.Models
         public bool RememberMe { get; set; }
     }
 }
+

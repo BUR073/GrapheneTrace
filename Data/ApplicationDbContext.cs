@@ -13,7 +13,6 @@ namespace GrapheneTrace.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
-        
         public DbSet<ApplicationUser> User { get; set; } 
         public DbSet<Alert> Alert { get; set; }
         public DbSet<SensorData> SensorData { get; set; }

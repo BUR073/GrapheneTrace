@@ -15,3 +15,4 @@ namespace GrapheneTrace.Models.Admin
         public List<int> SelectedLinkIds { get; set; } = new();
     }
 }
+

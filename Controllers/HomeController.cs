@@ -21,24 +21,23 @@ namespace GrapheneTrace.Controllers
     [Authorize]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
         private readonly IHeatmapService _heatmapService;
         private readonly ISensorDataService _sensorDataService;
-        public HomeController(ILogger<HomeController> logger, 
+        public HomeController(
             UserManager<ApplicationUser> userManager, 
             ApplicationDbContext context, 
             IHeatmapService heatmapService,
             ISensorDataService sensorDataService)
         {
-            _logger = logger;
             _userManager = userManager;
             _context = context;
             _heatmapService = heatmapService; 
             _sensorDataService = sensorDataService;
         }
-
+        
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -58,6 +57,7 @@ namespace GrapheneTrace.Controllers
             return RedirectToAction("PatientHome");
             
         }
+            
 
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AdminHome(string searchString)

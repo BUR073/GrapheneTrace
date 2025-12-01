@@ -75,18 +75,17 @@ namespace GrapheneTrace.Services
             return metrics; 
         }
 
-        private async Task createAlert(int value, int chunkId, int DataId)
-        { 
+        private void createAlert(int value, int chunkId, int DataId)
+        {
             Alert alert = new Alert()
             {
-                DataId = DataId, 
-                AlertText = $"Abnormally high pressure: {value} ChunkId: {chunkId}";
+                DataId = DataId,
+                SensorData = null!, 
+                AlertText = $"Abnormally high pressure: {value} ChunkId: {chunkId}",
                 TimeStamp = DateTime.UtcNow,
-                Updateat = DateTime.UtcNow, 
-            }
-                
-            await _context.ChunkMetrics.AddRangeAsync(alert);
-            await _context.SaveChangesAsync();
+                UpdatedAt = DateTime.UtcNow,
+            };
+            _context.Alert.Add(alert); 
         }
         
 

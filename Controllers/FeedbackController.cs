@@ -20,6 +20,7 @@ namespace GrapheneTrace.Controllers
 {
     public class FeedbackController : Controller
     {
+        
         private readonly IFeedbackService _feedbackService;
         private readonly UserManager<ApplicationUser> _userManager;
 
@@ -28,7 +29,6 @@ namespace GrapheneTrace.Controllers
             _feedbackService = feedbackService;
             _userManager = userManager;
         }
-
         [HttpPost]
         public async Task<IActionResult> DeleteFeedback(int feedbackId)
         {

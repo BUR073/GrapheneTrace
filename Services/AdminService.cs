@@ -21,7 +21,7 @@ namespace GrapheneTrace.Services
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole<int>> _roleManager;
-
+        
 
         public AdminService(UserManager<ApplicationUser> userManager, 
             RoleManager<IdentityRole<int>> roleManager, ApplicationDbContext context)
