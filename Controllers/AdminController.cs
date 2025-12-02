@@ -192,19 +192,15 @@ namespace GrapheneTrace.Controllers
         {
             var patient = await _userManager.FindByIdAsync(id.ToString());
             if (patient == null) return NotFound();
-
-            var allClinicians = await _userManager.GetUsersInRoleAsync("Clinician");
-
-            var alreadyLinkedClinicianIds = await _adminService.GetAlreadyLinkedUsers(id, UserType.Clinician);
-
+            
             var model = new ManageLinksViewModel
             {
                 PrimaryUserId = patient.Id,
                 PrimaryUserName = patient.Name,
                 PrimaryUserRole = nameof(UserType.Patient),
-                AssignedLinks = _adminService.GetLinkSelectionList(allClinicians, alreadyLinkedClinicianIds, LinkFilter.Assigned).ToList(),
-                AvailableLinks = _adminService.GetLinkSelectionList(allClinicians, alreadyLinkedClinicianIds, LinkFilter.Available).ToList(),
-                SelectedLinkIds = alreadyLinkedClinicianIds
+                AssignedLinks = (await _adminService.GetLinkSelectionList(UserType.Clinician, id, LinkFilter.Assigned)).ToList(),
+                AvailableLinks = (await _adminService.GetLinkSelectionList(UserType.Clinician, id, LinkFilter.Available)).ToList(),
+                SelectedLinkIds = await _adminService.GetAlreadyLinkedUsers(id, UserType.Clinician)
             };
             return View(nameof(Pages.ManageLinks), model);
         }
@@ -214,19 +210,15 @@ namespace GrapheneTrace.Controllers
         {
             var clinician = await _userManager.FindByIdAsync(id.ToString());
             if (clinician == null) return NotFound();
-
-            var allPatients = await _userManager.GetUsersInRoleAsync("Patient");
-
-            var alreadyLinkedPatientIds = await _adminService.GetAlreadyLinkedUsers(id, UserType.Patient);
-
+            
             var model = new ManageLinksViewModel
             {
                 PrimaryUserId = clinician.Id,
                 PrimaryUserName = clinician.Name,
                 PrimaryUserRole = nameof(UserType.Clinician),
-                AssignedLinks = _adminService.GetLinkSelectionList(allPatients, alreadyLinkedPatientIds, LinkFilter.Assigned).ToList(),
-                AvailableLinks = _adminService.GetLinkSelectionList(allPatients, alreadyLinkedPatientIds, LinkFilter.Available).ToList(),
-                SelectedLinkIds = alreadyLinkedPatientIds
+                AssignedLinks = (await _adminService.GetLinkSelectionList(UserType.Patient, id, LinkFilter.Assigned)).ToList(),
+                AvailableLinks = (await _adminService.GetLinkSelectionList(UserType.Patient, id, LinkFilter.Available)).ToList(),
+                SelectedLinkIds = await _adminService.GetAlreadyLinkedUsers(id, UserType.Patient)
             };
             return View(nameof(Pages.ManageLinks), model);
         }

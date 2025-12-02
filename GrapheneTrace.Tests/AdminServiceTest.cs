@@ -7,7 +7,6 @@ using GrapheneTrace.Models.Admin;
 using GrapheneTrace.Data;
 using GrapheneTrace.Enums;
 using GrapheneTrace.Models.Database;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 namespace GrapheneTrace.Tests
 {
@@ -33,31 +32,199 @@ namespace GrapheneTrace.Tests
                 .Options;
             return new ApplicationDbContext(options);
         }
-
+        
         [Fact]
-        public async Task GetAlreadyLinkedUsers_should_return_nothing_when_there_are_no_links()
+        public async Task GetLinkSelectionList_returns_empty_when_no_users_found_in_role()
         {
             var dbName = Guid.NewGuid().ToString();
+            
             await using (var context = GetNewDb(dbName))
             {
-                context.PatientClinician.Add(new PatientClinician { ClinicianId = 9, PatientId = 3 });
-                context.PatientClinician.Add(new PatientClinician { ClinicianId = 8, PatientId = 2 });
-                context.PatientClinician.Add(new PatientClinician { ClinicianId = 7, PatientId = 99 });
+                context.PatientClinician.Add(new PatientClinician { ClinicianId = 99, PatientId = 10 });
                 await context.SaveChangesAsync();
             }
             
             await using (var context = GetNewDb(dbName))
             {
-                var service = new AdminService( null!, context);
-                var result = await service.GetAlreadyLinkedUsers(1, UserType.Patient);
-                Assert.Empty(result);
+                var userManagerMock = MockUserManager();
+                var allPatients = new List<ApplicationUser> {};
+
+                userManagerMock
+                    .Setup(x => x.GetUsersInRoleAsync(nameof(UserType.Patient)))
+                    .ReturnsAsync(allPatients);
+                
+                var service = new AdminService(userManagerMock.Object, context);
+                
+                var result = await service.GetLinkSelectionList(UserType.Patient, 99, (LinkFilter)99);
+                
+                Assert.Equal(result, []);
+            }
+        }
+        [Fact]
+        public async Task GetLinkSelectionList_returns_empty_for_invalid_filter_type()
+        {
+            var dbName = Guid.NewGuid().ToString();
+            
+            await using (var context = GetNewDb(dbName))
+            {
+                context.PatientClinician.Add(new PatientClinician { ClinicianId = 99, PatientId = 10 });
+                await context.SaveChangesAsync();
             }
             
             await using (var context = GetNewDb(dbName))
             {
-                var service = new AdminService(null!, context);
-                var result = await service.GetAlreadyLinkedUsers(1, UserType.Clinician);
-                Assert.Empty(result);
+                var userManagerMock = MockUserManager();
+                var allPatients = new List<ApplicationUser>
+                {
+                    new ApplicationUser { Id = 10, Name = "Linked Patient", Email = "linked@test.com", DateOfBirth = new DateTime(1990, 1, 1)},
+                    new ApplicationUser { Id = 20, Name = "Available Patient", Email = "available@test.com", DateOfBirth = new DateTime(1990, 1, 2)},
+                };
+
+                userManagerMock
+                    .Setup(x => x.GetUsersInRoleAsync(nameof(UserType.Patient)))
+                    .ReturnsAsync(allPatients);
+                
+                var service = new AdminService(userManagerMock.Object, context);
+                
+                var result = await service.GetLinkSelectionList(UserType.Patient, 99, (LinkFilter)99);
+                
+                Assert.Equal(result, []);
+            }
+        }
+
+        [Fact]
+        public async Task GetLinkSelectionList_returns_assigned_links_for_a_clinician()
+        {
+            var dbName = Guid.NewGuid().ToString();
+            
+            await using (var context = GetNewDb(dbName))
+            {
+                context.PatientClinician.Add(new PatientClinician { ClinicianId = 99, PatientId = 10 });
+                await context.SaveChangesAsync();
+            }
+            
+            await using (var context = GetNewDb(dbName))
+            {
+                var userManagerMock = MockUserManager();
+                var allPatients = new List<ApplicationUser>
+                {
+                    new ApplicationUser { Id = 10, Name = "Linked Patient", Email = "linked@test.com", DateOfBirth = new DateTime(1990, 1, 1)},
+                    new ApplicationUser { Id = 20, Name = "Available Patient", Email = "available@test.com", DateOfBirth = new DateTime(1990, 1, 2)},
+                };
+
+                userManagerMock
+                    .Setup(x => x.GetUsersInRoleAsync(nameof(UserType.Patient)))
+                    .ReturnsAsync(allPatients);
+                
+                var service = new AdminService(userManagerMock.Object, context);
+                
+                var result = await service.GetLinkSelectionList(UserType.Patient, 99, LinkFilter.Assigned);
+                
+                Assert.Single(result);
+                Assert.Equal("10", result.First().Value);
+                Assert.Equal("Linked Patient (linked@test.com)", result.First().Text);
+            }
+        }
+        
+        [Fact]
+        public async Task GetLinkSelectionList_returns_assigned_links_for_a_patient()
+        {
+            var dbName = Guid.NewGuid().ToString();
+            
+            await using (var context = GetNewDb(dbName))
+            {
+                context.PatientClinician.Add(new PatientClinician { ClinicianId = 10, PatientId = 99 });
+                await context.SaveChangesAsync();
+            }
+            
+            await using (var context = GetNewDb(dbName))
+            {
+                var userManagerMock = MockUserManager();
+                var allPatients = new List<ApplicationUser>
+                {
+                    new ApplicationUser { Id = 10, Name = "Linked Clinician", Email = "linked@test.com", DateOfBirth = new DateTime(1990, 1, 1)},
+                    new ApplicationUser { Id = 20, Name = "Available Clinician", Email = "available@test.com", DateOfBirth = new DateTime(1990, 1, 2)},
+                };
+
+                userManagerMock
+                    .Setup(x => x.GetUsersInRoleAsync(nameof(UserType.Clinician)))
+                    .ReturnsAsync(allPatients);
+                
+                var service = new AdminService(userManagerMock.Object, context);
+                
+                var result = await service.GetLinkSelectionList(UserType.Clinician, 99, LinkFilter.Assigned);
+                
+                Assert.Single(result);
+                Assert.Equal("10", result.First().Value);
+                Assert.Equal("Linked Clinician (linked@test.com)", result.First().Text);
+            }
+        }
+    
+        [Fact]
+        public async Task GetLinkSelectionList_returns_available_links_for_a_patient()
+        {
+            var dbName = Guid.NewGuid().ToString();
+            
+            await using (var context = GetNewDb(dbName))
+            {
+                context.PatientClinician.Add(new PatientClinician { ClinicianId = 10, PatientId = 99 });
+                await context.SaveChangesAsync();
+            }
+            
+            await using (var context = GetNewDb(dbName))
+            {
+                var userManagerMock = MockUserManager();
+                var allPatients = new List<ApplicationUser>
+                {
+                    new ApplicationUser { Id = 10, Name = "Linked Clinician", Email = "linked@test.com", DateOfBirth = new DateTime(1990, 1, 1)},
+                    new ApplicationUser { Id = 20, Name = "Available Clinician", Email = "available@test.com", DateOfBirth = new DateTime(1990, 1, 2)},
+                };
+
+                userManagerMock
+                    .Setup(x => x.GetUsersInRoleAsync(nameof(UserType.Clinician)))
+                    .ReturnsAsync(allPatients);
+                
+                var service = new AdminService(userManagerMock.Object, context);
+                
+                var result = await service.GetLinkSelectionList(UserType.Clinician, 99, LinkFilter.Available);
+                
+                Assert.Single(result);
+                Assert.Equal("20", result.First().Value);
+                Assert.Equal("Available Clinician (available@test.com)", result.First().Text);
+            }
+        }
+        
+        [Fact]
+        public async Task GetLinkSelectionList_returns_available_links_for_a_clinician()
+        {
+            var dbName = Guid.NewGuid().ToString();
+            
+            await using (var context = GetNewDb(dbName))
+            {
+                context.PatientClinician.Add(new PatientClinician { ClinicianId = 99, PatientId = 10 });
+                await context.SaveChangesAsync();
+            }
+            
+            await using (var context = GetNewDb(dbName))
+            {
+                var userManagerMock = MockUserManager();
+                var allPatients = new List<ApplicationUser>
+                {
+                    new ApplicationUser { Id = 10, Name = "Linked Patient", Email = "linked@test.com", DateOfBirth = new DateTime(1990, 1, 1)},
+                    new ApplicationUser { Id = 20, Name = "Available Patient", Email = "available@test.com", DateOfBirth = new DateTime(1990, 1, 2)},
+                };
+
+                userManagerMock
+                    .Setup(x => x.GetUsersInRoleAsync(nameof(UserType.Patient)))
+                    .ReturnsAsync(allPatients);
+                
+                var service = new AdminService(userManagerMock.Object, context);
+                
+                var result = await service.GetLinkSelectionList(UserType.Patient, 99, LinkFilter.Available);
+                
+                Assert.Single(result);
+                Assert.Equal("20", result.First().Value);
+                Assert.Equal("Available Patient (available@test.com)", result.First().Text);
             }
         }
 

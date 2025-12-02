@@ -9,6 +9,7 @@
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
         <NoWarn>CS0105;CS8602;CS8767;CS8604;CS8618;CS0579;MSB3026;CS0436;CS8602s</NoWarn>
+        <DefaultItemExcludes>$(DefaultItemExcludes);GrapheneTrace.Tests\**</DefaultItemExcludes>
     </PropertyGroup>
 
     <ItemGroup>
