@@ -155,22 +155,30 @@ namespace GrapheneTrace.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteUserConfirmed(int id)
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null) {
-                return RedirectToAction(nameof(Pages.AdminHome), "Home");
-            }
             var currentAdminIdString = _userManager.GetUserId(User);
             
-            if (int.TryParse(currentAdminIdString, out int currentAdminId))
+            int.TryParse(currentAdminIdString, out int currentAdminId);
+            
+            var status = await _adminService.DeleteUserAsync(id, currentAdminId);
+            
+            switch (status)
             {
-                if (user.Id == currentAdminId)
-                {
+                case DeleteUserStatus.CannotDeleteSelf:
                     TempData["ErrorMessage"] = "Error: You cannot delete your own administrator account.";
-                    return RedirectToAction(nameof(Pages.AdminHome), "Home");
-                }
-            }
+                    break;
 
-            await _userManager.DeleteAsync(user);
+                case DeleteUserStatus.DatabaseError:
+                    TempData["ErrorMessage"] = "Error: Could not delete user due to a database error.";
+                    break;
+
+                case DeleteUserStatus.UserNotFound:
+                    TempData["ErrorMessage"] = "Error: User not found.";
+                    break;
+
+                case DeleteUserStatus.Success:
+                    TempData["SuccessMessage"] = "User deleted successfully.";
+                    break;
+            }
 
             return RedirectToAction(nameof(Pages.AdminHome), "Home");
         }
