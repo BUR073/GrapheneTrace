@@ -48,24 +48,12 @@ namespace GrapheneTrace.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser
-                {
-                    UserName = model.Email,
-                    Email = model.Email,
-                    Name = model.Name,
-                    DateOfBirth = model.DateOfBirth,
-                    EmailConfirmed = true
-                };
-
-                var result = await _userManager.CreateAsync(user, model.Password);
-
+                var result = await _adminService.CreateUser(model);
+                
                 if (result.Succeeded)
                 {
-                    await _userManager.AddToRoleAsync(user, model.SelectedRole);
-
                     return RedirectToAction(nameof(Pages.AdminHome), "Home");
                 }
-
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);

@@ -3,6 +3,7 @@ using GrapheneTrace.Areas.Identity.Data;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using GrapheneTrace.Enums;
 using GrapheneTrace.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace GrapheneTrace.Services.Interfaces
 {
@@ -15,6 +16,7 @@ namespace GrapheneTrace.Services.Interfaces
         Task<List<int>> GetAlreadyLinkedUsers(int id, UserType type);
         Task<IList<SelectListItem>> GetLinkSelectionList(UserType userType, int userId, LinkFilter type);
         Task<List<UserViewModel>> GetAdminDashboardUsersAsync(string searchString);
+        Task<IdentityResult> CreateUser(CreateUserViewModel model);
     }
 }
 
