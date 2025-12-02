@@ -4,49 +4,114 @@ using Microsoft.AspNetCore.Identity;
 using GrapheneTrace.Services;
 using GrapheneTrace.Areas.Identity.Data; 
 using GrapheneTrace.Models.Admin;        
-using GrapheneTrace.Data;
 using GrapheneTrace.Enums;
 using GrapheneTrace.Models.Database;
 using Microsoft.EntityFrameworkCore;
 namespace GrapheneTrace.Tests
 {
-
     public class AdminServiceTest
     {
-        private static Mock<UserManager<ApplicationUser>> MockUserManager()
+        [Fact]
+        public async Task GetAdminDashboardUsersAsync_returns_nothing_when_search_string_doesnt_match_anything()
         {
-            var store = new Mock<IUserStore<ApplicationUser>>();
-            var mgr = new Mock<UserManager<ApplicationUser>>(
-                store.Object, null!, null!, null!, null!, null!, null!, null!, null!);
+            var dbName = Guid.NewGuid().ToString();
+            
+            await using (var context = TestHelpers.GetNewDb(dbName))
+            {
+                var allUsers = new List<ApplicationUser>
+                {
+                    new ApplicationUser { Id = 1, Name = "Alice Patient", Email = "alice@test.com", DateOfBirth = DateTime.Now },
+                    new ApplicationUser { Id = 2, Name = "Bob Clinician", Email = "bob@test.com", DateOfBirth = DateTime.Now },
+                    new ApplicationUser { Id = 3, Name = "Charlie Admin", Email = "charlie@test.com", DateOfBirth = DateTime.Now },
+                };
 
-            mgr.Object.UserValidators.Add(new UserValidator<ApplicationUser>());
-            mgr.Object.PasswordValidators.Add(new PasswordValidator<ApplicationUser>());
+                context.Users.AddRange(allUsers); 
+                await context.SaveChangesAsync();
+            }
+            
+            await using (var context = TestHelpers.GetNewDb(dbName))
+            {
+                var service = new AdminService(TestHelpers.MockUserManager().Object, context);
+                
+                var result = await service.GetAdminDashboardUsersAsync("Nothing");
+                
+                Assert.Equal(result, []);
+            }
+        }
+        [Fact]
+        public async Task GetAdminDashboardUsersAsync_returns_correct_users_from_search_string()
+        {
+            var dbName = Guid.NewGuid().ToString();
+            
+            await using (var context = TestHelpers.GetNewDb(dbName))
+            {
+                var allUsers = new List<ApplicationUser>
+                {
+                    new ApplicationUser { Id = 1, Name = "Alice Patient", Email = "alice@test.com", DateOfBirth = DateTime.Now },
+                    new ApplicationUser { Id = 2, Name = "Bob Clinician", Email = "bob@test.com", DateOfBirth = DateTime.Now },
+                    new ApplicationUser { Id = 3, Name = "Charlie Admin", Email = "charlie@test.com", DateOfBirth = DateTime.Now },
+                };
 
-            return mgr;
+                context.Users.AddRange(allUsers); 
+                await context.SaveChangesAsync();
+            }
+            
+            await using (var context = TestHelpers.GetNewDb(dbName))
+            {
+                var service = new AdminService(TestHelpers.MockUserManager().Object, context);
+                
+                var result = await service.GetAdminDashboardUsersAsync("Alice");
+                
+                Assert.NotNull(result);
+                Assert.Single(result); 
+                var user = result.First();
+                Assert.Equal("Alice Patient", user.Name);
+                Assert.Equal("alice@test.com", user.Email);
+            }
+        }
+        [Fact]
+        public async Task GetAdminDashboardUsersAsync_returns_all_users_when_search_is_empty()
+        {
+            var dbName = Guid.NewGuid().ToString();
+            
+            await using (var context = TestHelpers.GetNewDb(dbName))
+            {
+                var allUsers = new List<ApplicationUser>
+                {
+                    new ApplicationUser { Id = 1, Name = "Alice Patient", Email = "alice@test.com", DateOfBirth = DateTime.Now },
+                    new ApplicationUser { Id = 2, Name = "Bob Clinician", Email = "bob@test.com", DateOfBirth = DateTime.Now },
+                    new ApplicationUser { Id = 3, Name = "Charlie Admin", Email = "charlie@test.com", DateOfBirth = DateTime.Now },
+                };
+
+                context.Users.AddRange(allUsers); 
+                await context.SaveChangesAsync();
+            }
+            
+            await using (var context = TestHelpers.GetNewDb(dbName))
+            {
+                var service = new AdminService(TestHelpers.MockUserManager().Object, context);
+                
+                var result = await service.GetAdminDashboardUsersAsync("");
+                
+                Assert.NotNull(result);
+                Assert.Equal(3, result.Count); 
+            }
         }
 
-        private static ApplicationDbContext GetNewDb(string dbname)
-        {
-            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseInMemoryDatabase(databaseName: dbname)
-                .Options;
-            return new ApplicationDbContext(options);
-        }
-        
         [Fact]
         public async Task GetLinkSelectionList_returns_empty_when_no_users_found_in_role()
         {
             var dbName = Guid.NewGuid().ToString();
             
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 context.PatientClinician.Add(new PatientClinician { ClinicianId = 99, PatientId = 10 });
                 await context.SaveChangesAsync();
             }
             
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
-                var userManagerMock = MockUserManager();
+                var userManagerMock = TestHelpers.MockUserManager();
                 var allPatients = new List<ApplicationUser> {};
 
                 userManagerMock
@@ -65,15 +130,15 @@ namespace GrapheneTrace.Tests
         {
             var dbName = Guid.NewGuid().ToString();
             
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 context.PatientClinician.Add(new PatientClinician { ClinicianId = 99, PatientId = 10 });
                 await context.SaveChangesAsync();
             }
             
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
-                var userManagerMock = MockUserManager();
+                var userManagerMock = TestHelpers.MockUserManager();
                 var allPatients = new List<ApplicationUser>
                 {
                     new ApplicationUser { Id = 10, Name = "Linked Patient", Email = "linked@test.com", DateOfBirth = new DateTime(1990, 1, 1)},
@@ -97,15 +162,15 @@ namespace GrapheneTrace.Tests
         {
             var dbName = Guid.NewGuid().ToString();
             
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 context.PatientClinician.Add(new PatientClinician { ClinicianId = 99, PatientId = 10 });
                 await context.SaveChangesAsync();
             }
             
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
-                var userManagerMock = MockUserManager();
+                var userManagerMock = TestHelpers.MockUserManager();
                 var allPatients = new List<ApplicationUser>
                 {
                     new ApplicationUser { Id = 10, Name = "Linked Patient", Email = "linked@test.com", DateOfBirth = new DateTime(1990, 1, 1)},
@@ -131,15 +196,15 @@ namespace GrapheneTrace.Tests
         {
             var dbName = Guid.NewGuid().ToString();
             
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 context.PatientClinician.Add(new PatientClinician { ClinicianId = 10, PatientId = 99 });
                 await context.SaveChangesAsync();
             }
             
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
-                var userManagerMock = MockUserManager();
+                var userManagerMock = TestHelpers.MockUserManager();
                 var allPatients = new List<ApplicationUser>
                 {
                     new ApplicationUser { Id = 10, Name = "Linked Clinician", Email = "linked@test.com", DateOfBirth = new DateTime(1990, 1, 1)},
@@ -165,15 +230,15 @@ namespace GrapheneTrace.Tests
         {
             var dbName = Guid.NewGuid().ToString();
             
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 context.PatientClinician.Add(new PatientClinician { ClinicianId = 10, PatientId = 99 });
                 await context.SaveChangesAsync();
             }
             
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
-                var userManagerMock = MockUserManager();
+                var userManagerMock = TestHelpers.MockUserManager();
                 var allPatients = new List<ApplicationUser>
                 {
                     new ApplicationUser { Id = 10, Name = "Linked Clinician", Email = "linked@test.com", DateOfBirth = new DateTime(1990, 1, 1)},
@@ -199,15 +264,15 @@ namespace GrapheneTrace.Tests
         {
             var dbName = Guid.NewGuid().ToString();
             
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 context.PatientClinician.Add(new PatientClinician { ClinicianId = 99, PatientId = 10 });
                 await context.SaveChangesAsync();
             }
             
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
-                var userManagerMock = MockUserManager();
+                var userManagerMock = TestHelpers.MockUserManager();
                 var allPatients = new List<ApplicationUser>
                 {
                     new ApplicationUser { Id = 10, Name = "Linked Patient", Email = "linked@test.com", DateOfBirth = new DateTime(1990, 1, 1)},
@@ -232,7 +297,7 @@ namespace GrapheneTrace.Tests
         public async Task GetAlreadyLinkedUsers_should_return_linked_patients()
         {
             var dbName = Guid.NewGuid().ToString();
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 context.PatientClinician.Add(new PatientClinician { ClinicianId = 1, PatientId = 1 });
                 context.PatientClinician.Add(new PatientClinician { ClinicianId = 1, PatientId = 2 });
@@ -240,7 +305,7 @@ namespace GrapheneTrace.Tests
                 await context.SaveChangesAsync();
             }
 
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 var service = new AdminService(null!, context);
                 var result = await service.GetAlreadyLinkedUsers(1, UserType.Patient);
@@ -258,7 +323,7 @@ namespace GrapheneTrace.Tests
         public async Task GetAlreadyLinkedUsers_should_return_linked_clinicians()
         {
             var dbName = Guid.NewGuid().ToString();
-            await using (var context = GetNewDb(dbName)) 
+            await using (var context = TestHelpers.GetNewDb(dbName)) 
             {
                 context.PatientClinician.Add(new PatientClinician { ClinicianId = 3, PatientId = 1 });
                 context.PatientClinician.Add(new PatientClinician { ClinicianId = 2, PatientId = 1 });
@@ -267,7 +332,7 @@ namespace GrapheneTrace.Tests
                 await context.SaveChangesAsync();
             }
 
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 var service = new AdminService(null!, context);
                 var result = await service.GetAlreadyLinkedUsers(1, UserType.Clinician);
@@ -283,15 +348,15 @@ namespace GrapheneTrace.Tests
         public async Task UpdateLinks_Should_Work_For_Clinician_Managing_Patients()
         {
             var dbName = Guid.NewGuid().ToString();
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 context.PatientClinician.Add(new PatientClinician { ClinicianId = 1, PatientId = 200 });
                 await context.SaveChangesAsync();
             }
             
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
-                var service = new AdminService(null!, context); // Replace 'YourService' with your actual class name
+                var service = new AdminService(null!, context); 
             
                 var primaryUserId = 1; 
                 var idsToAdd = new List<int> { 100 };
@@ -301,7 +366,7 @@ namespace GrapheneTrace.Tests
                 await service.UpdatePatientClinicianLinks(idsToAdd, idsToRemove, primaryUserId, isManagingPatient);
             }
             
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 var links = await context.PatientClinician.ToListAsync();
                 Assert.Single(links);
@@ -314,13 +379,13 @@ namespace GrapheneTrace.Tests
         public async Task UpdateLinks_Should_Work_For_Patient_Managing_Clinicians()
         {
             var dbName = Guid.NewGuid().ToString();
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 context.PatientClinician.Add(new PatientClinician { PatientId = 50, ClinicianId = 6 });
                 await context.SaveChangesAsync();
             }
             
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 var service = new AdminService(null!, context);
             
@@ -332,7 +397,7 @@ namespace GrapheneTrace.Tests
                 await service.UpdatePatientClinicianLinks(idsToAdd, idsToRemove, primaryUserId, isManagingPatient);
             }
             
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 var links = await context.PatientClinician.ToListAsync();
 
@@ -346,19 +411,19 @@ namespace GrapheneTrace.Tests
         public async Task UpdateLinks_Should_Do_Nothing_If_Lists_Are_Empty()
         {
             var dbName = Guid.NewGuid().ToString();
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 context.PatientClinician.Add(new PatientClinician { PatientId = 1, ClinicianId = 1 });
                 await context.SaveChangesAsync();
             }
 
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 var service = new AdminService(null!, context);
                 await service.UpdatePatientClinicianLinks(new List<int>(), new List<int>(), 1, false);
             }
             
-            await using (var context = GetNewDb(dbName))
+            await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 Assert.Equal(1, await context.PatientClinician.CountAsync());
             }
@@ -367,7 +432,7 @@ namespace GrapheneTrace.Tests
         [Fact]
         public async Task Update_User_Should_Return_False_When_User_Does_Not_Exist()
         {
-            var userManager = MockUserManager();
+            var userManager = TestHelpers.MockUserManager();
             var adminService = new AdminService(userManager.Object, null!);
             var model = new EditUserViewModel { Id = 999 }; 
             
@@ -382,7 +447,7 @@ namespace GrapheneTrace.Tests
         [Fact]
         public async Task Update_User_Should_Update_Fields_And_Roles()
         {
-            var mockUserManager = MockUserManager();
+            var mockUserManager = TestHelpers.MockUserManager();
             var service = new AdminService(mockUserManager.Object,null!);
             
             var model = new EditUserViewModel
@@ -425,7 +490,7 @@ namespace GrapheneTrace.Tests
         [Fact]
         public async Task Update_User_Should_Update_Password_When_New_Password_Provided()
         {
-            var mockUserManager = MockUserManager();
+            var mockUserManager = TestHelpers.MockUserManager();
             var service = new AdminService(mockUserManager.Object,null!);
 
             var model = new EditUserViewModel
@@ -465,7 +530,7 @@ namespace GrapheneTrace.Tests
         [Fact]
         public async Task Update_User_Should_Not_Update_Password_if_it_does_not_match_password_confirm()
         {
-            var mockUserManager = MockUserManager();
+            var mockUserManager = TestHelpers.MockUserManager();
             var service = new AdminService(mockUserManager.Object, null!);
 
             var model = new EditUserViewModel
@@ -474,7 +539,7 @@ namespace GrapheneTrace.Tests
                 Email = "test@test.com",
                 NewPassword = "SuperSecretPassword123!", 
                 ConfirmPassword = "SuperSecretPassword123",
-                SelectedRoles = new List<string>(),
+                SelectedRoles = [],
                 Name = "Test User",
                 DateOfBirth = new DateTime(1990, 1, 1)
             };
@@ -506,7 +571,7 @@ namespace GrapheneTrace.Tests
         [Fact]
         public async Task UpdateUser_Should_Return_false_when_password_to_weak()
         {
-            var mockUserManager = MockUserManager();
+            var mockUserManager = TestHelpers.MockUserManager();
             var service = new AdminService(mockUserManager.Object, null!);
 
             var model = new EditUserViewModel
