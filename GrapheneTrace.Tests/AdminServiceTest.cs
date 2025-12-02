@@ -5,12 +5,178 @@ using GrapheneTrace.Services;
 using GrapheneTrace.Areas.Identity.Data; 
 using GrapheneTrace.Models.Admin;        
 using GrapheneTrace.Enums;
-using GrapheneTrace.Models.Database;
 using Microsoft.EntityFrameworkCore;
 namespace GrapheneTrace.Tests
 {
     public class AdminServiceTest
     {
+        [Fact]
+        public async Task DeleteUserAsync_Should_Return_Success_When_User_Is_Deleted_Successfully()
+        {
+            await using var context = TestHelpers.GetNewDb(Guid.NewGuid().ToString());
+            var mockUserManager = TestHelpers.MockUserManager();
+            var service = TestHelpers.GetNewAdminService(context, mockUserManager);
+            
+            var targetUser = TestHelpers.CreateUser(10, "Joe Bloggs", "target@test.com");
+            
+            mockUserManager.Setup(x => x.FindByIdAsync("10"))
+                .ReturnsAsync(targetUser);
+            
+            mockUserManager.Setup(x => x.DeleteAsync(targetUser))
+                .ReturnsAsync(IdentityResult.Success);
+            
+            var result = await service.DeleteUserAsync(10, 1);
+            
+            Assert.Equal(DeleteUserStatus.Success, result);
+
+            mockUserManager.Verify(x => x.DeleteAsync(targetUser), Times.Once);
+        }
+        [Fact]
+        public async Task DeleteUserAsync_Should_Return_Database_Error_When_Delete_Fails()
+        {
+
+            await using var context = TestHelpers.GetNewDb(Guid.NewGuid().ToString());
+            var mockUserManager = TestHelpers.MockUserManager();
+            var service = TestHelpers.GetNewAdminService(context, mockUserManager);
+            
+            var targetUser = TestHelpers.CreateUser(10, "Dave Bloggs", "target@test.com");
+            
+            mockUserManager.Setup(x => x.FindByIdAsync("10"))
+                .ReturnsAsync(targetUser);
+            
+            mockUserManager.Setup(x => x.DeleteAsync(targetUser))
+                .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "DB Error" }));
+            
+            var result = await service.DeleteUserAsync(10, 1);
+            
+            Assert.Equal(DeleteUserStatus.DatabaseError, result);
+        }
+        
+        [Fact]
+        public async Task DeleteUserAsync_Should_Return_User_Not_Found_When_User_Does_Not_Exist()
+        {
+            await using var context = TestHelpers.GetNewDb(Guid.NewGuid().ToString());
+            var mockUserManager = TestHelpers.MockUserManager();
+            var service = TestHelpers.GetNewAdminService(context, mockUserManager);
+            
+            mockUserManager.Setup(x => x.FindByIdAsync("99"))
+                .ReturnsAsync((ApplicationUser)null!);
+            
+            var result = await service.DeleteUserAsync(99, 1);
+            
+            Assert.Equal(DeleteUserStatus.UserNotFound, result);
+            
+            mockUserManager.Verify(x => x.DeleteAsync(It.IsAny<ApplicationUser>()), Times.Never);
+        }
+        
+        [Fact]
+        public async Task DeleteUserAsync_Should_Return_Cannot_Delete_Self_When_You_Try_To_Delete_Yourself()
+        {
+            await using var context = TestHelpers.GetNewDb(Guid.NewGuid().ToString());
+            var mockUserManager = TestHelpers.MockUserManager();
+            var service = TestHelpers.GetNewAdminService(context, mockUserManager);
+
+            var result = await service.DeleteUserAsync(1, 1);
+
+            Assert.Equal(DeleteUserStatus.CannotDeleteSelf, result);
+            
+            mockUserManager.Verify(x => x.FindByIdAsync(It.IsAny<string>()), Times.Never);
+        }
+        
+        [Fact]
+        public async Task CreateUser_Should_Delete_User_And_Return_Failure_When_Role_Assignment_Fails()
+        {
+            var dbName = Guid.NewGuid().ToString();
+            await using var context = TestHelpers.GetNewDb(dbName);
+            var mockUserManager = TestHelpers.MockUserManager();
+            var roleError = new IdentityError { Description = "Role does not exist" };
+            
+            mockUserManager
+                .Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+            
+            mockUserManager
+                .Setup(x => x.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Failed(roleError));
+            
+            mockUserManager
+                .Setup(x => x.DeleteAsync(It.IsAny<ApplicationUser>()))
+                .ReturnsAsync(IdentityResult.Success);
+
+            var service = TestHelpers.GetNewAdminService(context, mockUserManager);
+
+            var model = TestHelpers.NewCreateUserViewModel("rolefail@example.com", "Dave Bloggs", "Password123!",
+                "NotARealRole");
+            
+            var result = await service.CreateUser(model);
+            
+            Assert.False(result.Succeeded);
+            Assert.Contains(result.Errors, e => e.Description == "Role does not exist");
+            
+            mockUserManager.Verify(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Once);
+            
+            mockUserManager.Verify(x => x.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Once);
+            
+            mockUserManager.Verify(x => x.DeleteAsync(
+                It.Is<ApplicationUser>(u => u.Email == model.Email)), Times.Once);
+        }
+        
+        [Fact]
+        public async Task CreateUser_Should_Return_Failure_When_User_Creation_Fails()
+        {
+            var dbName = Guid.NewGuid().ToString();
+            await using var context = TestHelpers.GetNewDb(dbName);
+            var mockUserManager = TestHelpers.MockUserManager();
+            var identityError = new IdentityError { Description = "Password too weak" };
+            
+            mockUserManager
+                .Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Failed(identityError));
+
+            var service = TestHelpers.GetNewAdminService(context, mockUserManager);
+            
+            var model = TestHelpers.NewCreateUserViewModel("fail@example.com", "Dave Bloggs", "123", "Patient");
+            
+            var result = await service.CreateUser(model);
+
+            Assert.False(result.Succeeded);
+            Assert.Contains(result.Errors, e => e.Description == "Password too weak");
+            
+            mockUserManager.Verify(x => x.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Never);
+        }
+        
+        [Fact]
+        public async Task CreateUser_Should_Return_Success_When_User_And_Role_Are_Created_Successfully()
+        {
+            var dbName = Guid.NewGuid().ToString();
+            await using var context = TestHelpers.GetNewDb(dbName);
+            var mockUserManager = TestHelpers.MockUserManager();
+            var service = TestHelpers.GetNewAdminService(context, mockUserManager);
+            
+            mockUserManager
+                .Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+            
+            mockUserManager
+                .Setup(x => x.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+            
+            var model = TestHelpers.NewCreateUserViewModel("test@example.com", "Test User", "Password123!", "Admin");
+            
+            var result = await service.CreateUser(model);
+            
+            Assert.True(result.Succeeded);
+            
+            mockUserManager.Verify(x => x.CreateAsync(
+                It.Is<ApplicationUser>(u => u.Email == model.Email && u.Name == model.Name), 
+                model.Password), Times.Once);
+            
+            mockUserManager.Verify(x => x.AddToRoleAsync(
+                It.Is<ApplicationUser>(u => u.Email == model.Email), 
+                model.SelectedRole), Times.Once);
+            
+            mockUserManager.Verify(x => x.DeleteAsync(It.IsAny<ApplicationUser>()), Times.Never);
+        }
         [Fact]
         public async Task GetAdminDashboardUsersAsync_returns_nothing_when_search_string_doesnt_match_anything()
         {

@@ -17,7 +17,7 @@ namespace GrapheneTrace.Services.Interfaces
         Task<IList<SelectListItem>> GetLinkSelectionList(UserType userType, int userId, LinkFilter type);
         Task<List<UserViewModel>> GetAdminDashboardUsersAsync(string searchString);
         Task<IdentityResult> CreateUser(CreateUserViewModel model);
-        Task<DeleteUserStatus> DeleteUserAsync(int targetUserId, int currentAdminId);
+        Task<DeleteUserStatus> DeleteUserAsync(int targetUserId, int currentId);
     }
 }
 
