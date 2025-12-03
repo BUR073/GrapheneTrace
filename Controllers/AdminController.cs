@@ -28,6 +28,7 @@ namespace GrapheneTrace.Controllers
             _adminService = adminService;
         }
 
+        
         [HttpGet]
         public async Task<IActionResult> CreateUser()
         {
@@ -41,6 +42,7 @@ namespace GrapheneTrace.Controllers
             };
             return View(viewModel);
         }
+        
 
         // POST: /Admin/CreateUser
         [HttpPost]
@@ -70,6 +72,7 @@ namespace GrapheneTrace.Controllers
             return View(model);
         }
 
+ 
         // GET: /Admin/EditUser/{id}
         [HttpGet]
         public async Task<IActionResult> EditUser(int id)
@@ -97,7 +100,7 @@ namespace GrapheneTrace.Controllers
         }
 
 
-
+  
         // POST: /Admin/EditUser
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -136,8 +139,7 @@ namespace GrapheneTrace.Controllers
 
             return View(model);
         }
-
-
+        
         // GET: /Admin/DeleteUser/{id}
         [HttpGet]
         public async Task<IActionResult> DeleteUser(int id)
@@ -150,6 +152,7 @@ namespace GrapheneTrace.Controllers
 
             return View(user);
         }
+ 
 
         // POST: /Admin/DeleteUser
         [HttpPost, ActionName("DeleteUser")]
@@ -184,6 +187,8 @@ namespace GrapheneTrace.Controllers
             return RedirectToAction(nameof(Pages.AdminHome), "Home");
         }
         
+
+        
         [HttpGet]
         public async Task<IActionResult> ManageUser(int id, UserType userType)
         {
@@ -201,6 +206,7 @@ namespace GrapheneTrace.Controllers
             };
             return View(nameof(Pages.ManageLinks), model);
         }
+        
         
         [HttpPost]
         [ValidateAntiForgeryToken]

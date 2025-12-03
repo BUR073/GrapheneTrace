@@ -10,10 +10,14 @@ using GrapheneTrace.Data;
 using GrapheneTrace.Models.Patient;
 using GrapheneTrace.Services.Interfaces;
 using GrapheneTrace.Enums;
+using static System.Enum;
 
 
 namespace GrapheneTrace.Controllers
 {
+    /// <summary>
+    /// Controls all home pages
+    /// </summary>
     [Authorize]
     public class HomeController : Controller
     {
@@ -37,24 +41,31 @@ namespace GrapheneTrace.Controllers
             _adminService = adminService;
         }
         
+        /// <summary>
+        /// Get the userType and direct to correct homepage 
+        /// </summary>
+        /// <returns></returns>
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
             
-            if (user == null) {
-                return Challenge();
+            if (user == null) { return Challenge(); }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var roleString = roles.FirstOrDefault();
+            
+            if (Enum.TryParse<UserType>(roleString, out var userType))
+            {
+                return userType switch
+                {
+                    UserType.Patient   => RedirectToAction(nameof(PatientHome)), 
+                    UserType.Clinician => RedirectToAction(nameof(ClinicianHome)), 
+                    UserType.Admin     => RedirectToAction(nameof(AdminHome)),
+                    _ => Challenge()
+                };
             }
             
-            if (await _userManager.IsInRoleAsync(user, nameof(UserType.Admin))) {
-                return RedirectToAction(nameof(Pages.AdminHome));
-            }
-            
-            if (await _userManager.IsInRoleAsync(user, nameof(UserType.Clinician))) {
-                return RedirectToAction(nameof(Pages.ClinicianHome));
-            }
-        
-            return RedirectToAction(nameof(Pages.PatientHome));
-            
+            return Challenge(); 
         }
             
 

@@ -10,7 +10,6 @@ namespace GrapheneTrace.Services.Interfaces
     public interface IAdminService
     {
         Task<bool> UpdateUser(EditUserViewModel model);
-
         Task UpdatePatientClinicianLinks(List<int> idsToAdd, List<int> idsToRemove, int primaryUserId, UserType primaryUserType);
         Task<List<int>> GetAlreadyLinkedUsers(int id, UserType type);
         Task<IList<SelectListItem>> GetLinkSelectionList(UserType userType, int userId, LinkFilter type);
@@ -19,4 +18,5 @@ namespace GrapheneTrace.Services.Interfaces
         Task<DeleteUserStatus> DeleteUserAsync(int targetUserId, int currentId);
     }
 }
+
 
