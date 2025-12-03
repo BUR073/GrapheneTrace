@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GrapheneTrace.Models
 {
+    /// <summary>
+    /// Model for passing data from login req
+    /// </summary>
     public class LoginViewModel
     {
         [Required]

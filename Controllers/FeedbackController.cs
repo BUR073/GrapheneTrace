@@ -18,6 +18,12 @@ namespace GrapheneTrace.Controllers
             _feedbackService = feedbackService;
             _userManager = userManager;
         }
+        
+        /// <summary>
+        /// Delete the feedback and return to patient home
+        /// </summary>
+        /// <param name="feedbackId"></param> The feedback to be deleted
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> DeleteFeedback(int feedbackId)
         {
@@ -31,6 +37,11 @@ namespace GrapheneTrace.Controllers
             return RedirectToAction(nameof(Pages.PatientHome), "Home");
         }
 
+        /// <summary>
+        /// Add feedback and return to patient home
+        /// </summary>
+        /// <param name="model"></param> The details of the feedback to be added
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> AddFeedback(NewFeedbackModel model)
         {

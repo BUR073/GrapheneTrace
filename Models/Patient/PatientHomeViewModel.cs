@@ -1,10 +1,10 @@
-using System;
-using System.Collections.Generic;
 using GrapheneTrace.Models.Database;
-using GrapheneTrace.Models.Feedback;
 
 namespace GrapheneTrace.Models.Patient
 {
+    /// <summary>
+    /// Model for passing the data to Patient Home View, contains all heatmap/sensordata and metrics
+    /// </summary>
     public class PatientHomeViewModel
     {
         public List<SensorData> AllSensorData { get; set; } = new();

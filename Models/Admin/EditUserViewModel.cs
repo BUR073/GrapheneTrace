@@ -1,9 +1,10 @@
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GrapheneTrace.Models.Admin
 {
+    /// <summary>
+    /// Model for storing the details of an edit user req
+    /// </summary>
     public class EditUserViewModel
     {
         public int Id { get; set; }

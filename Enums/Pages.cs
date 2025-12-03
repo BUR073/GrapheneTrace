@@ -1,5 +1,8 @@
 namespace GrapheneTrace.Enums;
 
+/// <summary>
+/// Enum for pages used in RedirectToAction() statements
+/// </summary>
 public enum Pages
 {
     PatientHome,

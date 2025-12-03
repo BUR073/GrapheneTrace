@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace GrapheneTrace.Models.Admin
 {
+    /// <summary>
+    /// Model for creating a new user
+    /// </summary>
     public class CreateUserViewModel
     {
         [Required]

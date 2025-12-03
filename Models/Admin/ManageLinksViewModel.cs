@@ -4,6 +4,9 @@ using GrapheneTrace.Enums;
 
 namespace GrapheneTrace.Models.Admin
 {
+    /// <summary>
+    /// Model to store the details of patient/clinician links to add/remove
+    /// </summary>
     public class ManageLinksViewModel
     {
         public int PrimaryUserId { get; set; }
