@@ -1,8 +1,9 @@
+@using GrapheneTrace.Enums
 @model GrapheneTrace.Models.Admin.ManageLinksViewModel
 
 @{
     var primaryRole = Model.PrimaryUserRole;
-    var linkRole = (primaryRole == "Patient") ? "Clinicians" : "Patients";
+    var linkRole = (primaryRole == UserType.Patient) ? "Clinicians" : "Patients";
     ViewData["Title"] = $"Manage {primaryRole}: {Model.PrimaryUserName}";
 }
 
@@ -10,7 +11,7 @@
 <hr />
 
 <form id="manage-links-form"
-      asp-action="@(primaryRole == "Patient" ? "ManagePatient" : "ManageClinician")" 
+      asp-action="ManageUser" 
       method="post"
       onsubmit="selectAllAssigned()">
 

@@ -431,7 +431,7 @@ namespace GrapheneTrace.Tests
             await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 var service = TestHelpers.GetNewAdminService(context); 
-                await service.UpdatePatientClinicianLinks([100], [200], 1, false);
+                await service.UpdatePatientClinicianLinks([100], [200], 1, UserType.Patient);
             }
             
             await using (var context = TestHelpers.GetNewDb(dbName))
@@ -452,7 +452,7 @@ namespace GrapheneTrace.Tests
             await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 var service = TestHelpers.GetNewAdminService(context);
-                await service.UpdatePatientClinicianLinks([5], [6], 50, true);
+                await service.UpdatePatientClinicianLinks([5], [6], 50, UserType.Clinician);
             }
             
             await using (var context = TestHelpers.GetNewDb(dbName))
@@ -474,7 +474,7 @@ namespace GrapheneTrace.Tests
             await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 var service = new AdminService(null!, context);
-                await service.UpdatePatientClinicianLinks([], [], 1, false);
+                await service.UpdatePatientClinicianLinks([], [], 1, UserType.Patient);
             }
             
             await using (var context = TestHelpers.GetNewDb(dbName))

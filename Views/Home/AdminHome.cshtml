@@ -1,6 +1,7 @@
 @model GrapheneTrace.Models.Admin.AdminHomeViewModel
 @using Microsoft.AspNetCore.Identity
 @using GrapheneTrace.Areas.Identity.Data
+@using GrapheneTrace.Enums
 @inject UserManager<ApplicationUser> UserManager
 @{
     ViewData["Title"] = "Admin Dashboard";
@@ -54,12 +55,12 @@
                     @if (user.Roles.Contains("Patient"))
                     {
                         var patientBtnClass = user.PatientLinkCount > 0 ? "btn-primary" : "btn-warning";
-                        <a class="btn @patientBtnClass btn-sm w-100" asp-controller="Admin" asp-action="ManagePatient" asp-route-id="@user.Id">Manage Patient</a>
+                        <a class="btn @patientBtnClass btn-sm w-100" asp-controller="Admin" asp-action="ManageUser" asp-route-userType = "@UserType.Patient" asp-route-id="@user.Id">Manage Patient</a>
                     }
                     @if (user.Roles.Contains("Clinician"))
                     {   
                         var ClinicianBtnClass = user.ClinicianLinkCount > 0 ? "btn-primary" : "btn-warning";
-                        <a class="btn @ClinicianBtnClass btn-sm w-100" asp-controller="Admin" asp-action="ManageClinician" asp-route-id="@user.Id">Manage Clinician</a>
+                        <a class="btn @ClinicianBtnClass btn-sm w-100" asp-controller="Admin" asp-action="ManageUser" asp-route-userType = "@UserType.Clinician" asp-route-id="@user.Id">Manage Clinician</a>
                     }
                 </div>
 

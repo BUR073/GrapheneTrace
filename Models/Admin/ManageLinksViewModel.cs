@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
+using GrapheneTrace.Enums;
 
 namespace GrapheneTrace.Models.Admin
 {
@@ -7,7 +8,7 @@ namespace GrapheneTrace.Models.Admin
     {
         public int PrimaryUserId { get; set; }
         public string PrimaryUserName { get; set; } = string.Empty;
-        public string PrimaryUserRole { get; set; } = string.Empty;
+        public UserType PrimaryUserRole { get; set; } 
         public List<SelectListItem> AssignedLinks { get; set; } = new();
         
         public List<SelectListItem> AvailableLinks { get; set; } = new();

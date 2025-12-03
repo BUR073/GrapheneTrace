@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using GrapheneTrace.Areas.Identity.Data;
 using GrapheneTrace.Services.Interfaces;
 using GrapheneTrace.Enums;
+using GrapheneTrace.Enums.Extensions;
 
 namespace GrapheneTrace.Controllers
 {
@@ -182,9 +183,9 @@ namespace GrapheneTrace.Controllers
 
             return RedirectToAction(nameof(Pages.AdminHome), "Home");
         }
-
+        
         [HttpGet]
-        public async Task<IActionResult> ManagePatient(int id)
+        public async Task<IActionResult> ManageUser(int id, UserType userType)
         {
             var patient = await _userManager.FindByIdAsync(id.ToString());
             if (patient == null) return NotFound();
@@ -193,64 +194,36 @@ namespace GrapheneTrace.Controllers
             {
                 PrimaryUserId = patient.Id,
                 PrimaryUserName = patient.Name,
-                PrimaryUserRole = nameof(UserType.Patient),
-                AssignedLinks = (await _adminService.GetLinkSelectionList(UserType.Clinician, id, LinkFilter.Assigned)).ToList(),
-                AvailableLinks = (await _adminService.GetLinkSelectionList(UserType.Clinician, id, LinkFilter.Available)).ToList(),
-                SelectedLinkIds = await _adminService.GetAlreadyLinkedUsers(id, UserType.Clinician)
+                PrimaryUserRole = userType,
+                AssignedLinks = (await _adminService.GetLinkSelectionList(userType.Opposite(), id, LinkFilter.Assigned)).ToList(),
+                AvailableLinks = (await _adminService.GetLinkSelectionList(userType.Opposite(), id, LinkFilter.Available)).ToList(),
+                SelectedLinkIds = await _adminService.GetAlreadyLinkedUsers(id, userType)
             };
             return View(nameof(Pages.ManageLinks), model);
         }
-
-        [HttpGet]
-        public async Task<IActionResult> ManageClinician(int id)
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ManageUser(ManageLinksViewModel model)
         {
-            var clinician = await _userManager.FindByIdAsync(id.ToString());
-            if (clinician == null) return NotFound();
+            await UpdatePatientClinicianLinksAsync(
+                primaryUserId: model.PrimaryUserId,
+                selectedLinkIds: model.SelectedLinkIds,
+                primaryUserType: model.PrimaryUserRole);
             
-            var model = new ManageLinksViewModel
-            {
-                PrimaryUserId = clinician.Id,
-                PrimaryUserName = clinician.Name,
-                PrimaryUserRole = nameof(UserType.Clinician),
-                AssignedLinks = (await _adminService.GetLinkSelectionList(UserType.Patient, id, LinkFilter.Assigned)).ToList(),
-                AvailableLinks = (await _adminService.GetLinkSelectionList(UserType.Patient, id, LinkFilter.Available)).ToList(),
-                SelectedLinkIds = await _adminService.GetAlreadyLinkedUsers(id, UserType.Patient)
-            };
-            return View(nameof(Pages.ManageLinks), model);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ManagePatient(ManageLinksViewModel model)
-        {
-            await UpdatePatientClinicianLinksAsync(
-                primaryUserId: model.PrimaryUserId,
-                selectedLinkIds: model.SelectedLinkIds,
-                isManagingPatient: true);
-
-            return RedirectToAction(nameof(Pages.AdminHome), "Home");
-        }
-
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ManageClinician(ManageLinksViewModel model)
-        {
-            await UpdatePatientClinicianLinksAsync(
-                primaryUserId: model.PrimaryUserId,
-                selectedLinkIds: model.SelectedLinkIds,
-                isManagingPatient: false);
 
             return RedirectToAction(nameof(Pages.AdminHome), "Home");
         }
         
-        private async Task UpdatePatientClinicianLinksAsync(int primaryUserId, List<int> selectedLinkIds, bool isManagingPatient)
+        private async Task UpdatePatientClinicianLinksAsync(int primaryUserId, List<int> selectedLinkIds, UserType primaryUserType)
         {
-            var currentlyLinkedIds = await _adminService.GetAlreadyLinkedUsers(primaryUserId, isManagingPatient ? UserType.Clinician : UserType.Patient);
+            var isManagingPatient = primaryUserType == UserType.Clinician;
+
+            var currentlyLinkedIds = await _adminService.GetAlreadyLinkedUsers(primaryUserId, primaryUserType);
 
             var idsToAdd = selectedLinkIds.Except(currentlyLinkedIds).ToList();
             var idsToRemove = currentlyLinkedIds.Except(selectedLinkIds).ToList();
-            await _adminService.UpdatePatientClinicianLinks(idsToAdd, idsToRemove, primaryUserId, isManagingPatient);
+            await _adminService.UpdatePatientClinicianLinks(idsToAdd, idsToRemove, primaryUserId, primaryUserType);
         }
     }
 }
