@@ -1,11 +1,11 @@
-﻿using Xunit;
-using Moq;
+﻿using Moq;
 using Microsoft.AspNetCore.Identity;
 using GrapheneTrace.Services;
 using GrapheneTrace.Areas.Identity.Data; 
 using GrapheneTrace.Models.Admin;        
 using GrapheneTrace.Enums;
 using Microsoft.EntityFrameworkCore;
+
 namespace GrapheneTrace.Tests
 {
     public class AdminServiceTest
@@ -31,6 +31,7 @@ namespace GrapheneTrace.Tests
 
             mockUserManager.Verify(x => x.DeleteAsync(targetUser), Times.Once);
         }
+        
         [Fact]
         public async Task DeleteUserAsync_Should_Return_Database_Error_When_Delete_Fails()
         {
@@ -177,6 +178,7 @@ namespace GrapheneTrace.Tests
             
             mockUserManager.Verify(x => x.DeleteAsync(It.IsAny<ApplicationUser>()), Times.Never);
         }
+        
         [Fact]
         public async Task GetAdminDashboardUsersAsync_returns_nothing_when_search_string_doesnt_match_anything()
         {
@@ -190,6 +192,7 @@ namespace GrapheneTrace.Tests
                 
             Assert.Empty(result);
         }
+        
         [Fact]
         public async Task GetAdminDashboardUsersAsync_returns_correct_users_from_search_string()
         {
@@ -207,6 +210,7 @@ namespace GrapheneTrace.Tests
             Assert.Equal("Alice Patient", user.Name);
             Assert.Equal("alice@test.com", user.Email);
         }
+        
         [Fact]
         public async Task GetAdminDashboardUsersAsync_returns_all_users_when_search_is_empty()
         {
@@ -242,6 +246,7 @@ namespace GrapheneTrace.Tests
                 
             Assert.Empty(result);
         }
+        
         [Fact]
         public async Task GetLinkSelectionList_returns_empty_for_invalid_filter_type()
         {
@@ -569,6 +574,7 @@ namespace GrapheneTrace.Tests
             mockUserManager.Verify(x => x.RemovePasswordAsync(existingUser), Times.Once);
             mockUserManager.Verify(x => x.AddPasswordAsync(existingUser, "SuperSecretPassword123!"), Times.Once);
         }
+        
         [Fact]
         public async Task Update_User_Should_Not_Update_Password_if_it_does_not_match_password_confirm()
         {

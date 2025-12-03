@@ -52,13 +52,13 @@
             <td class="action-button-group">
 
                 <div class="action-slot">
-                    @if (user.Roles.Contains("Patient"))
+                    @if (user.Roles.Contains(nameof(UserType.Patient)))
                     {
                         var patientBtnClass = user.PatientLinkCount > 0 ? "btn-primary" : "btn-warning";
                         <a class="btn @patientBtnClass btn-sm w-100" asp-controller="Admin" asp-action="ManageUser" asp-route-userType = "@UserType.Patient" asp-route-id="@user.Id">Manage Patient</a>
                     }
-                    @if (user.Roles.Contains("Clinician"))
-                    {   
+                    @if (user.Roles.Contains(nameof(UserType.Clinician)))
+                    {
                         var ClinicianBtnClass = user.ClinicianLinkCount > 0 ? "btn-primary" : "btn-warning";
                         <a class="btn @ClinicianBtnClass btn-sm w-100" asp-controller="Admin" asp-action="ManageUser" asp-route-userType = "@UserType.Clinician" asp-route-id="@user.Id">Manage Clinician</a>
                     }

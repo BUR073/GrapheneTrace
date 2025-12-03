@@ -206,24 +206,16 @@ namespace GrapheneTrace.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ManageUser(ManageLinksViewModel model)
         {
-            await UpdatePatientClinicianLinksAsync(
-                primaryUserId: model.PrimaryUserId,
-                selectedLinkIds: model.SelectedLinkIds,
-                primaryUserType: model.PrimaryUserRole);
-            
+            var currentlyLinkedIds = await _adminService.GetAlreadyLinkedUsers(model.PrimaryUserId, model.PrimaryUserRole);
+
+            await _adminService.UpdatePatientClinicianLinks(
+                model.SelectedLinkIds.Except(currentlyLinkedIds).ToList(), 
+                currentlyLinkedIds.Except(model.SelectedLinkIds).ToList(), 
+                model.PrimaryUserId, 
+                model.PrimaryUserRole);
 
             return RedirectToAction(nameof(Pages.AdminHome), "Home");
         }
-        
-        private async Task UpdatePatientClinicianLinksAsync(int primaryUserId, List<int> selectedLinkIds, UserType primaryUserType)
-        {
-            var isManagingPatient = primaryUserType == UserType.Clinician;
 
-            var currentlyLinkedIds = await _adminService.GetAlreadyLinkedUsers(primaryUserId, primaryUserType);
-
-            var idsToAdd = selectedLinkIds.Except(currentlyLinkedIds).ToList();
-            var idsToRemove = currentlyLinkedIds.Except(selectedLinkIds).ToList();
-            await _adminService.UpdatePatientClinicianLinks(idsToAdd, idsToRemove, primaryUserId, primaryUserType);
-        }
     }
 }

@@ -17,7 +17,7 @@ namespace GrapheneTrace.Tests
         /// <summary>
         /// Create's and returns an EditUserViewModel
         /// </summary>
-        /// <param name="id"></param> The Id you want
+        /// <param name="id"></param> The id you want
         /// <param name="email"></param> The email you want
         /// <param name="name"></param> The name you want
         /// <param name="newPassword"></param> Optional: The new password
