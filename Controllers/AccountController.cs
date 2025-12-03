@@ -8,40 +8,51 @@ namespace GrapheneTrace.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AccountController(SignInManager<ApplicationUser> signInManager)
         {
-            _userManager = userManager;
+
             _signInManager = signInManager;
         }
 
-        // GET: /Account/Login
+        /// <summary>
+        /// Show the login page
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
 
-        // POST: /Account/Login
+        /// <summary>
+        /// Process the login and redirect to appropriate homepage
+        /// </summary>
+        /// <param name="model"></param> The login details
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
-                if (result.Succeeded)
-                {
-                    return RedirectToAction(nameof(Pages.Index), "Home");
-                }
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return View(model);
             }
+
+            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+            if (result.Succeeded)
+            {
+                return RedirectToAction(nameof(Pages.Index), "Home");
+            }
+            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             return View(model);
         }
         
-        // POST: /Account/Logout
+        /// <summary>
+        /// Log the user out
+        /// </summary>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()

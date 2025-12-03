@@ -10,7 +10,6 @@ using GrapheneTrace.Data;
 using GrapheneTrace.Models.Patient;
 using GrapheneTrace.Services.Interfaces;
 using GrapheneTrace.Enums;
-using static System.Enum;
 
 
 namespace GrapheneTrace.Controllers
@@ -54,6 +53,7 @@ namespace GrapheneTrace.Controllers
             var roles = await _userManager.GetRolesAsync(user);
             var roleString = roles.FirstOrDefault();
             
+            // Try and parse the role string into a UserType enum
             if (Enum.TryParse<UserType>(roleString, out var userType))
             {
                 return userType switch
@@ -68,7 +68,11 @@ namespace GrapheneTrace.Controllers
             return Challenge(); 
         }
             
-
+        /// <summary>
+        /// Return AdminHome view, stash searchString in ViewData and populate the user list
+        /// </summary>
+        /// <param name="searchString"></param> The search string
+        /// <returns></returns>
         [Authorize(Roles = nameof(UserType.Admin))]
         public async Task<IActionResult> AdminHome(string searchString)
         {
@@ -82,13 +86,21 @@ namespace GrapheneTrace.Controllers
             return View(viewModel);
         }
     
-
+        /// <summary>
+        /// Return ClinicianHome view
+        /// </summary>
+        /// <returns></returns>
         [Authorize(Roles = nameof(UserType.Clinician))]
         public IActionResult ClinicianHome()
         {
             return View();
         }
 
+        /// <summary>
+        /// Return the patient home view with sensor data, metrics and feedback
+        /// </summary>
+        /// <param name="dataId"></param> The id of the heatmap
+        /// <returns></returns>
         [Authorize(Roles = nameof(UserType.Patient))]
         public async Task<IActionResult> PatientHome(int? dataId)
         {
@@ -118,7 +130,7 @@ namespace GrapheneTrace.Controllers
 
             return View(viewModel);
         }
-
+        
         public IActionResult Privacy()
         {
             return View();

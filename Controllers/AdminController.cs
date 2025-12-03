@@ -28,7 +28,10 @@ namespace GrapheneTrace.Controllers
             _adminService = adminService;
         }
 
-        
+        /// <summary>
+        /// Show create user view and populate roles dropdown
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> CreateUser()
         {
@@ -44,7 +47,11 @@ namespace GrapheneTrace.Controllers
         }
         
 
-        // POST: /Admin/CreateUser
+        /// <summary>
+        /// Process the new user and return to admin home
+        /// </summary>
+        /// <param name="model"></param> The details of the new user
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateUser(CreateUserViewModel model)
@@ -73,7 +80,11 @@ namespace GrapheneTrace.Controllers
         }
 
  
-        // GET: /Admin/EditUser/{id}
+        /// <summary>
+        /// Show the edit user view and populate form
+        /// </summary>
+        /// <param name="id"></param> The user to be edited
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> EditUser(int id)
         {
@@ -101,7 +112,11 @@ namespace GrapheneTrace.Controllers
 
 
   
-        // POST: /Admin/EditUser
+        /// <summary>
+        /// Process the edit user req and return to admin home
+        /// </summary>
+        /// <param name="model"></param> The changes to be made
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditUser(EditUserViewModel model)
@@ -140,7 +155,11 @@ namespace GrapheneTrace.Controllers
             return View(model);
         }
         
-        // GET: /Admin/DeleteUser/{id}
+        /// <summary>
+        /// Show the delete user page
+        /// </summary>
+        /// <param name="id"></param> The user to be deleted
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> DeleteUser(int id)
         {
@@ -154,7 +173,11 @@ namespace GrapheneTrace.Controllers
         }
  
 
-        // POST: /Admin/DeleteUser
+        /// <summary>
+        /// Process a delete user req and return to admin home
+        /// </summary>
+        /// <param name="id"></param> The user to be deleted
+        /// <returns></returns>
         [HttpPost, ActionName("DeleteUser")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteUserConfirmed(int id)
@@ -188,7 +211,12 @@ namespace GrapheneTrace.Controllers
         }
         
 
-        
+        /// <summary>
+        /// Show the manage user page and populate the assigned and available links 
+        /// </summary>
+        /// <param name="id"></param> The id of the user being managed
+        /// <param name="userType"></param> The type of user being managed
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> ManageUser(int id, UserType userType)
         {
@@ -208,6 +236,11 @@ namespace GrapheneTrace.Controllers
         }
         
         
+        /// <summary>
+        /// Process the manage user req and return to admin home
+        /// </summary>
+        /// <param name="model"></param> the details of the links to be added/removed
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ManageUser(ManageLinksViewModel model)
