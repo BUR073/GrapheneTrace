@@ -386,6 +386,18 @@ namespace GrapheneTrace.Tests
         }
 
         [Fact]
+        public async Task GetAlreadyLinkedUsers_throws_error_if_user_type_is_invalid()
+        {
+            var dbName = Guid.NewGuid().ToString();
+            await using var context = TestHelpers.GetNewDb(dbName);
+            var service = TestHelpers.GetNewAdminService(context);
+            var exception = await Assert.ThrowsAsync<ArgumentException>(() => 
+                service.GetAlreadyLinkedUsers(1, UserType.Admin));
+            
+            Assert.Equal("User Type cannot be linked", exception.Message);
+        }
+
+        [Fact]
         public async Task GetAlreadyLinkedUsers_should_return_linked_patients()
         {
             var dbName = Guid.NewGuid().ToString();

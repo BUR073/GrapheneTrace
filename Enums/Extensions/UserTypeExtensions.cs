@@ -8,7 +8,8 @@ namespace GrapheneTrace.Enums.Extensions
             {
                 UserType.Patient => UserType.Clinician,
                 UserType.Clinician => UserType.Patient,
-                _ => userType
+                UserType.Admin => throw new ArgumentException("User Type does not have an opposite"),
+                _ => throw new ArgumentException("User Type does not have an opposite")
             };
         }
     }
