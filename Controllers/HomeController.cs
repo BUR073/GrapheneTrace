@@ -109,8 +109,12 @@ namespace GrapheneTrace.Controllers
                 return Challenge();
 
             var recentSensorData = await _sensorDataService.GetRecentSensorDataAsync(user.Id, dataId);
+            if (recentSensorData == null)
+            {
+                return View();
+            }
             await _heatmapService.ProcessMissingMetricsAsync(recentSensorData);
-            
+
             var feedback = await _context.Feedback
                 .Include(f => f.HeatmapChunk)
                 .Include(f => f.Replies)

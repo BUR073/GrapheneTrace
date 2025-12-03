@@ -11,7 +11,7 @@ namespace GrapheneTrace.Models.Patient
         public List<List<List<int>>> AllHeatmapGrids { get; set; } = new();
         public List<ChunkMetricModel> AllMetrics { get; set; } = new();
         public DateTime? HeatmapTimestamp { get; set; }
-        public IEnumerable<GrapheneTrace.Models.Database.Feedback> AllFeedback { get; set; }
+        public required IEnumerable<GrapheneTrace.Models.Database.Feedback> AllFeedback { get; set; }
 
     }
 }

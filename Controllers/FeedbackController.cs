@@ -49,13 +49,15 @@ namespace GrapheneTrace.Controllers
                 return BadRequest();
             
             var user = await _userManager.GetUserAsync(User);
-            
+
+            if (user == null) return RedirectToAction(nameof(Pages.PatientHome), "Home");
             var heatmap = await _feedbackService.AddFeedback(model, user.Id);
 
             if (heatmap != null)
             {
                 return RedirectToAction(nameof(Pages.PatientHome), "Home", new { dataId = heatmap });
             }
+
             return RedirectToAction(nameof(Pages.PatientHome), "Home");
 
         }

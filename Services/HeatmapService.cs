@@ -24,7 +24,7 @@ namespace GrapheneTrace.Services
             }
 
             var chunksToProcess = sensorData.Heatmap.Chunks
-                .Where(c => c.Metrics == null) 
+                .Where(c => false) 
                 .ToList();
 
             if (chunksToProcess.Count == 0)
