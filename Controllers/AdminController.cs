@@ -121,9 +121,14 @@ namespace GrapheneTrace.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditUser(EditUserViewModel model)
         {
+            model.Roles = await _roleManager.Roles
+                .Where(r => r.Name != null) 
+                .Select(r => r.Name!)        
+                .ToListAsync();
+            
             if (!ModelState.IsValid)
                 return View(model);
-
+            
             var currentAdminIdString = _userManager.GetUserId(User);
 
             if (int.TryParse(currentAdminIdString, out var currentAdminId))
@@ -131,11 +136,6 @@ namespace GrapheneTrace.Controllers
                 if (model.Id == currentAdminId && !model.SelectedRoles.Contains("Admin"))
                 {
                     ModelState.AddModelError(string.Empty, "Error: You cannot remove your own Administrator role.");
-                    model.Roles = await _roleManager.Roles
-                        .Where(r => r.Name != null) 
-                        .Select(r => r.Name!)        
-                        .ToListAsync();
-
                     return View(model);
                 }
             }
@@ -147,10 +147,7 @@ namespace GrapheneTrace.Controllers
 
             ModelState.AddModelError(string.Empty, "Failed to update user. Please check details and try again.");
             
-            model.Roles = await _roleManager.Roles
-                .Where(r => r.Name != null) 
-                .Select(r => r.Name!)        
-                .ToListAsync();
+            
 
             return View(model);
         }
