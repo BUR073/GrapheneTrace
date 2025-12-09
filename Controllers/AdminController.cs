@@ -217,17 +217,16 @@ namespace GrapheneTrace.Controllers
         [HttpGet]
         public async Task<IActionResult> ManageUser(int id, UserType userType)
         {
-            var patient = await _userManager.FindByIdAsync(id.ToString());
-            if (patient == null) return NotFound();
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null) return NotFound();
             
             var model = new ManageLinksViewModel
             {
-                PrimaryUserId = patient.Id,
-                PrimaryUserName = patient.Name,
+                PrimaryUserId = user.Id,
+                PrimaryUserName = user.Name,
                 PrimaryUserRole = userType,
                 AssignedLinks = (await _adminService.GetLinkSelectionList(userType.Opposite(), id, LinkFilter.Assigned)).ToList(),
                 AvailableLinks = (await _adminService.GetLinkSelectionList(userType.Opposite(), id, LinkFilter.Available)).ToList(),
-                SelectedLinkIds = await _adminService.GetAlreadyLinkedUsers(id, userType)
             };
             return View(nameof(Pages.ManageLinks), model);
         }
