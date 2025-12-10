@@ -1,3 +1,4 @@
+//SID: 2408078
 export function initHeatmap(allGridsData, allMetricsData) {
     if (!allGridsData || allGridsData.length === 0) return;
 

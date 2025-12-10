@@ -1,8 +1,10 @@
-namespace GrapheneTrace.Models;
-
-public class ErrorViewModel
+// SID: 2408078
+namespace GrapheneTrace.Models
 {
-    public string? RequestId { get; set; }
+    public class ErrorViewModel
+    {
+        public string? RequestId { get; set; }
 
-    public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+    }
 }

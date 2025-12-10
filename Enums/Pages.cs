@@ -1,13 +1,15 @@
-namespace GrapheneTrace.Enums;
-
-/// <summary>
-/// Enum for pages used in RedirectToAction() statements
-/// </summary>
-public enum Pages
+// SID: 2408078
+namespace GrapheneTrace.Enums
 {
-    PatientHome,
-    AdminHome,
-    ClinicianHome,
-    ManageLinks,
-    Index
+    /// <summary>
+    /// Enum for pages used in RedirectToAction() statements
+    /// </summary>
+    public enum Pages
+    {
+        PatientHome,
+        AdminHome,
+        ClinicianHome,
+        ManageLinks,
+        Index
+    }
 }
