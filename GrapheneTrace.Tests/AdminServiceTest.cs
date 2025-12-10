@@ -5,11 +5,19 @@ using GrapheneTrace.Areas.Identity.Data;
 using GrapheneTrace.Models.Admin;        
 using GrapheneTrace.Enums;
 using Microsoft.EntityFrameworkCore;
+using Xunit.Abstractions;
 
 namespace GrapheneTrace.Tests
 {
     public class AdminServiceTest
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public AdminServiceTest(ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+        }
+
         [Fact]
         public async Task DeleteUserAsync_Should_Return_Success_When_User_Is_Deleted_Successfully()
         {
@@ -391,7 +399,7 @@ namespace GrapheneTrace.Tests
         }
 
         [Fact]
-        public async Task GetAlreadyLinkedUsers_throws_error_if_user_type_is_invalid()
+        public async Task GetAlreadyLinkedUsers_throws_error_if_user_is_admin()
         {
             var dbName = Guid.NewGuid().ToString();
             await using var context = TestHelpers.GetNewDb(dbName);
@@ -399,33 +407,33 @@ namespace GrapheneTrace.Tests
             var exception = await Assert.ThrowsAsync<ArgumentException>(() => 
                 service.GetAlreadyLinkedUsers(1, UserType.Admin));
             
-            Assert.Equal("User Type cannot be linked", exception.Message);
+            Assert.Equal("Admin cannot be linked", exception.Message);
         }
 
         [Fact]
-        public async Task GetAlreadyLinkedUsers_should_return_linked_patients()
+        public async Task GetAlreadyLinkedUsers_should_return_clinicians_linked_to_a_patient()
         {
             var dbName = Guid.NewGuid().ToString();
-            await TestHelpers.SeedLink(dbName, 1, 1);
-            await TestHelpers.SeedLink(dbName, 1, 2);
-            await TestHelpers.SeedLink(dbName, 2, 99);
+            await TestHelpers.SeedLink(dbName, 2, 1);
+            await TestHelpers.SeedLink(dbName, 3, 1);
+            await TestHelpers.SeedLink(dbName, 99, 4);
 
             await using var context = TestHelpers.GetNewDb(dbName);
             var service = TestHelpers.GetNewAdminService(context);
             var result = await service.GetAlreadyLinkedUsers(1, UserType.Patient);
             Assert.NotNull(result);
             Assert.Equal(2, result.Count);
-            Assert.Contains(1, result);
             Assert.Contains(2, result);
+            Assert.Contains(3, result);
             Assert.DoesNotContain(99, result);
         }
 
         [Fact]
-        public async Task GetAlreadyLinkedUsers_should_return_linked_clinicians()
+        public async Task GetAlreadyLinkedUsers_should_return_patients_linked_to_a_clincian()
         {
             var dbName = Guid.NewGuid().ToString();
-            await TestHelpers.SeedLink(dbName, 3, 1);
-            await TestHelpers.SeedLink(dbName, 2, 1);
+            await TestHelpers.SeedLink(dbName, 1, 3);
+            await TestHelpers.SeedLink(dbName, 1, 2);
             await TestHelpers.SeedLink(dbName, 5, 99);
 
             await using var context = TestHelpers.GetNewDb(dbName);
@@ -448,7 +456,7 @@ namespace GrapheneTrace.Tests
             await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 var service = TestHelpers.GetNewAdminService(context); 
-                await service.UpdatePatientClinicianLinks([100], [200], 1, UserType.Patient);
+                await service.UpdatePatientClinicianLinks([100], [200], 1, UserType.Clinician);
             }
             
             await using (var context = TestHelpers.GetNewDb(dbName))
@@ -469,7 +477,7 @@ namespace GrapheneTrace.Tests
             await using (var context = TestHelpers.GetNewDb(dbName))
             {
                 var service = TestHelpers.GetNewAdminService(context);
-                await service.UpdatePatientClinicianLinks([5], [6], 50, UserType.Clinician);
+                await service.UpdatePatientClinicianLinks([5], [6], 50, UserType.Patient);
             }
             
             await using (var context = TestHelpers.GetNewDb(dbName))
