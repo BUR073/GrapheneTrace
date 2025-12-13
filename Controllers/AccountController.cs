@@ -36,16 +36,22 @@ namespace GrapheneTrace.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
+            // Check the model state
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
-
+            
+            // Call sign in func
             var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+            
+            // If signed in
             if (result.Succeeded)
             {
                 return RedirectToAction(nameof(Pages.Index), "Home");
             }
+            
+            // else show error and return view
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             return View(model);
         }

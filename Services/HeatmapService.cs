@@ -129,7 +129,6 @@ namespace GrapheneTrace.Services
 
         private float CalculatePeakPressure(IEnumerable<string> chunkLines)
         {
-            //TODO: the logic
             return 0.0f;
         }
 

@@ -36,6 +36,7 @@ namespace GrapheneTrace.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateUser()
         {
+            // Populate CreateUserViewModel with roles
             var viewModel = new CreateUserViewModel
             {
                 Roles = await _roleManager.Roles.Select(r => new SelectListItem
@@ -59,18 +60,22 @@ namespace GrapheneTrace.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Call the admin service createUser func
                 var result = await _adminService.CreateUser(model);
                 
+                // If user is created
                 if (result.Succeeded)
                 {
                     return RedirectToAction(nameof(Pages.AdminHome), "Home");
                 }
+                // Loop through errors and add to model state
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
-
+            
+            // Populate roles in model
             model.Roles = await _roleManager.Roles.Select(r => new SelectListItem
             {
                 Text = r.Name,
