@@ -1,7 +1,8 @@
 //SID: 2408078
 export function initHeatmap(allGridsData, allMetricsData) {
     if (!allGridsData || allGridsData.length === 0) return;
-
+    
+    // Assing elements to const by id
     const canvas = document.getElementById('heatmapCanvas');
     const ctx = canvas.getContext('2d');
     const slider = document.getElementById('chunkSlider');
@@ -13,15 +14,19 @@ export function initHeatmap(allGridsData, allMetricsData) {
     const maxPressureEl = document.getElementById('maxPressure');
     const contactAreaEl = document.getElementById('contactArea');
     const commentsChunkIdEl = document.getElementById('commentsChunkId');
-
+    
+    // Define cell size 
     const cellSize = 20;
+    
+    // Initial state
     let isPlaying = false;
     let currentChunkIndex = 0;
     let playInterval;
 
+    // Draw the grid
     function drawGrid(chunkIndex) {
         if (chunkIndex >= allGridsData.length) return;
-
+        
         const gridData = allGridsData[chunkIndex];
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -45,18 +50,21 @@ export function initHeatmap(allGridsData, allMetricsData) {
         }
     }
 
+    // Assign correct colour to pressure val
     function getColourForValue(value) {
         if (value === 0) return "#f0f0f0";
         const hue = 240 - (value / 255) * 240;
         return `hsl(${hue}, 100%, 50%)`;
     }
 
+    // Update the slider and comments
     function updateUI(chunkIndex) {
         slider.value = chunkIndex;
         chunkIndicator.textContent = `Chunk ${chunkIndex + 1} / ${allGridsData.length}`;
         commentsChunkIdEl.value = chunkIndex + 1;
     }
 
+    // Play next chunk
     function playNextChunk() {
         currentChunkIndex++;
         if (currentChunkIndex >= allGridsData.length) {
@@ -65,18 +73,21 @@ export function initHeatmap(allGridsData, allMetricsData) {
         drawGrid(currentChunkIndex);
     }
 
+    // Start the heatmpa playback
     function startPlayback() {
         isPlaying = true;
         playPauseBtn.textContent = "Pause";
         playInterval = setInterval(playNextChunk, 100);
     }
 
+    // Stop playback for heatmap
     function stopPlayback() {
         isPlaying = false;
         playPauseBtn.textContent = "Play";
         clearInterval(playInterval);
     }
 
+    // Add event listeners 
     playPauseBtn.addEventListener('click', () => {
         if (isPlaying) {
             stopPlayback();
