@@ -3,6 +3,14 @@ namespace GrapheneTrace.Enums.Extensions
 {
     public static class UserTypeExtensions
     {
+        /// <summary>
+        /// Return the opposite user type
+        /// Patient --> Clinician
+        /// Clinician --> Patient
+        /// </summary>
+        /// <param name="userType"></param> The user type to oppose 
+        /// <returns></returns> The opposite user type
+        /// <exception cref="ArgumentException"></exception> If Admin, there is no opposite
         public static UserType Opposite(this UserType userType)
         {
             return userType switch

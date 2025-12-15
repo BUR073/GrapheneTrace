@@ -94,15 +94,19 @@ namespace GrapheneTrace.Controllers
         [HttpGet]
         public async Task<IActionResult> EditUser(int id)
         {
+            // Find user object
             var user = await _userManager.FindByIdAsync(id.ToString());
+            // If user doesnt exist
             if (user == null)
             {
                 return NotFound();
             }
-
+            // get users role
             var userRoles = await _userManager.GetRolesAsync(user);
+            // Get all user roles
             var allRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
 
+            // Create EditUserViewModel
             var model = new EditUserViewModel
             {
                 Id = user.Id,
@@ -127,18 +131,23 @@ namespace GrapheneTrace.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditUser(EditUserViewModel model)
         {
+            // Populate roles in model
             model.Roles = await _roleManager.Roles
                 .Where(r => r.Name != null) 
                 .Select(r => r.Name!)        
                 .ToListAsync();
             
+            // If the model state isn't valid
             if (!ModelState.IsValid)
                 return View(model);
             
+            // Get user id
             var currentAdminIdString = _userManager.GetUserId(User);
 
+            // Parse user id to int
             if (int.TryParse(currentAdminIdString, out var currentAdminId))
             {
+                // Make sure you dont remove your own admin role 
                 if (model.Id == currentAdminId && !model.SelectedRoles.Contains("Admin"))
                 {
                     ModelState.AddModelError(string.Empty, "Error: You cannot remove your own Administrator role.");
@@ -146,8 +155,10 @@ namespace GrapheneTrace.Controllers
                 }
             }
             
+            // Update the user
             if (await _adminService.UpdateUser(model))
             {
+                // return to admin home
                 return RedirectToAction(nameof(Pages.AdminHome), "Home");
             }
 
@@ -166,7 +177,9 @@ namespace GrapheneTrace.Controllers
         [HttpGet]
         public async Task<IActionResult> DeleteUser(int id)
         {
+            // Get user object
             var user = await _userManager.FindByIdAsync(id.ToString());
+            // If user does not exist
             if (user == null)
             {
                 return NotFound();
@@ -185,12 +198,15 @@ namespace GrapheneTrace.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteUserConfirmed(int id)
         {
+            // Get user id
             var currentAdminIdString = _userManager.GetUserId(User);
-            
+            // parse user id to int
             int.TryParse(currentAdminIdString, out int currentAdminId);
             
+            // Delete user
             var status = await _adminService.DeleteUserAsync(id, currentAdminId);
             
+            // handle errors
             switch (status)
             {
                 case DeleteUserStatus.CannotDeleteSelf:
@@ -210,6 +226,7 @@ namespace GrapheneTrace.Controllers
                     break;
             }
 
+            // Return to admin home
             return RedirectToAction(nameof(Pages.AdminHome), "Home");
         }
         
@@ -223,9 +240,12 @@ namespace GrapheneTrace.Controllers
         [HttpGet]
         public async Task<IActionResult> ManageUser(int id, UserType userType)
         {
+            // Get user
             var user = await _userManager.FindByIdAsync(id.ToString());
+            // If user doesnt exist
             if (user == null) return NotFound();
             
+            // Create manageLinksViewModel
             var model = new ManageLinksViewModel
             {
                 PrimaryUserId = user.Id,
@@ -247,14 +267,17 @@ namespace GrapheneTrace.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ManageUser(ManageLinksViewModel model)
         {
+            // Get already linked users
             var currentlyLinkedIds = await _adminService.GetAlreadyLinkedUsers(model.PrimaryUserId, model.PrimaryUserRole);
 
+            // update the links
             await _adminService.UpdatePatientClinicianLinks(
                 model.SelectedLinkIds.Except(currentlyLinkedIds).ToList(), 
                 currentlyLinkedIds.Except(model.SelectedLinkIds).ToList(), 
                 model.PrimaryUserId, 
                 model.PrimaryUserRole);
 
+            // Return to admin home
             return RedirectToAction(nameof(Pages.AdminHome), "Home");
         }
 

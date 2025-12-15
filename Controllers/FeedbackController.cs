@@ -28,13 +28,16 @@ namespace GrapheneTrace.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteFeedback(int feedbackId)
         {
+            // delete the feedbacl
             int? dataId = await _feedbackService.DeleteFeedback(feedbackId);
 
+            // If dataId
             if (dataId != null)
             {
+                // Return to patient home with data id
                 return RedirectToAction(nameof(Pages.PatientHome), "Home", new { dataId });
             }
-            
+            // return to patient home
             return RedirectToAction(nameof(Pages.PatientHome), "Home");
         }
 
@@ -46,19 +49,26 @@ namespace GrapheneTrace.Controllers
         [HttpPost]
         public async Task<IActionResult> AddFeedback(NewFeedbackModel model)
         {
+            // If the model is valid
             if (!ModelState.IsValid)
                 return BadRequest();
             
+            // Get the user
             var user = await _userManager.GetUserAsync(User);
 
+            // If no user return to patient home
             if (user == null) return RedirectToAction(nameof(Pages.PatientHome), "Home");
+            // Add the feedback
             var heatmap = await _feedbackService.AddFeedback(model, user.Id);
 
+            // If heatmap found
             if (heatmap != null)
             {
+                // return to patient home with heatap
                 return RedirectToAction(nameof(Pages.PatientHome), "Home", new { dataId = heatmap });
             }
 
+            // return to patient home
             return RedirectToAction(nameof(Pages.PatientHome), "Home");
 
         }

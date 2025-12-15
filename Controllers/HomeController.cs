@@ -47,16 +47,20 @@ namespace GrapheneTrace.Controllers
         /// <returns></returns>
         public async Task<IActionResult> Index()
         {
+            // Get user
             var user = await _userManager.GetUserAsync(User);
             
+            // If user doesnt exist
             if (user == null) { return Challenge(); }
 
+            // Get user role
             var roles = await _userManager.GetRolesAsync(user);
             var roleString = roles.FirstOrDefault();
             
             // Try and parse the role string into a UserType enum
             if (Enum.TryParse<UserType>(roleString, out var userType))
             {
+                // Return correct home page
                 return userType switch
                 {
                     UserType.Patient   => RedirectToAction(nameof(PatientHome)), 
@@ -77,8 +81,10 @@ namespace GrapheneTrace.Controllers
         [Authorize(Roles = nameof(UserType.Admin))]
         public async Task<IActionResult> AdminHome(string searchString)
         {
+            // Store search string
             ViewData["CurrentFilter"] = searchString;
             
+            // populate adminHomeViewModel
             var viewModel = new AdminHomeViewModel
             {
                 Users = await _adminService.GetAdminDashboardUsersAsync(searchString)
@@ -105,17 +111,23 @@ namespace GrapheneTrace.Controllers
         [Authorize(Roles = nameof(UserType.Patient))]
         public async Task<IActionResult> PatientHome(int? dataId)
         {
+            // get the user
             var user = await _userManager.GetUserAsync(User);
+            // If the user doesnt exist
             if (user == null)
                 return Challenge();
-
+            // Get sensor data
             var recentSensorData = await _sensorDataService.GetRecentSensorDataAsync(user.Id, dataId);
+            
+            // If there is no sensor data
             if (recentSensorData == null)
             {
                 return View();
             }
+            // process heatmap metrics
             await _heatmapService.ProcessMissingMetricsAsync(recentSensorData);
-
+            
+            // Get the feedback
             var feedback = await _context.Feedback
                 .Include(f => f.HeatmapChunk)
                 .Include(f => f.Replies)
@@ -123,7 +135,7 @@ namespace GrapheneTrace.Controllers
                 .OrderByDescending(f => f.TimeStamp)
                 .ToListAsync();
 
-
+            // Populate model
             var viewModel = new PatientHomeViewModel
             {
                 AllHeatmapGrids = _sensorDataService.BuildHeatmapGrids(recentSensorData),

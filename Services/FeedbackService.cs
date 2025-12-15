@@ -25,16 +25,21 @@ namespace GrapheneTrace.Services
 
         public async Task<int?> DeleteFeedback(int feedbackId)
         {
+            // Get feedback object 
             var feedback = await _context.Feedback
                 .Include(f => f.HeatmapChunk)
                 .FirstOrDefaultAsync(f => f.FeedbackId == feedbackId);
 
+            // Check feedback exists
             if (feedback == null)
             {
                 return null;
             }
+            
+            // Get dataId
             var dataId = feedback.HeatmapChunk?.ChunkId;
 
+            // Delete feedback and save changes to db
             _context.Feedback.Remove(feedback);
             await _context.SaveChangesAsync();
                 
@@ -44,11 +49,13 @@ namespace GrapheneTrace.Services
 
         public async Task<int?> AddFeedback(NewFeedbackModel model, int user)
         {
-            
+            // Find the chunk
             var chunk = await _context.HeatmapChunk.FindAsync(model.ChunkId);
+            // If the chunk doesnt exist
             if (chunk == null)
                 return null;
 
+            // Create new feedback model
             var feedback = new Feedback
             {
                 UserId = user,
@@ -56,7 +63,8 @@ namespace GrapheneTrace.Services
                 Comment = model.Text,
                 TimeStamp = DateTime.UtcNow
             };
-
+            
+            // Add and save to db
             _context.Feedback.Add(feedback);
             await _context.SaveChangesAsync();
             

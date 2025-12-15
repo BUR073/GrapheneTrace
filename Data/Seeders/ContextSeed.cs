@@ -88,9 +88,8 @@ namespace GrapheneTrace.Data.Seeders
             }
             
             logger.LogInformation($"Processing file: {filePath} for user {userId}");
-            
-            using var transaction = await context.Database.BeginTransactionAsync();
-            // Try catch block to prevent loading half a file
+
+            await using var transaction = await context.Database.BeginTransactionAsync();
             try
             {
                 // Create the sensorData record
