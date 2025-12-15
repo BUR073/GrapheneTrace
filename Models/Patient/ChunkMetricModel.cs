@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using GrapheneTrace.Models.Database;
-
+// SID: 2408078
 namespace GrapheneTrace.Models.Patient
 {
+    /// <summary>
+    /// Model for storing chunk metrics
+    /// </summary>
     public class ChunkMetricModel
     {
         public float PeakPressure { get; set; }
