@@ -270,7 +270,7 @@ namespace GrapheneTrace.Controllers
             // Get already linked users
             var currentlyLinkedIds = await _adminService.GetAlreadyLinkedUsers(model.PrimaryUserId, model.PrimaryUserRole);
 
-            // update the link
+            // update the links
             await _adminService.UpdatePatientClinicianLinks(
                 model.SelectedLinkIds.Except(currentlyLinkedIds).ToList(), 
                 currentlyLinkedIds.Except(model.SelectedLinkIds).ToList(), 
